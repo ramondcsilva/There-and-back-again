@@ -7,8 +7,8 @@ Created on Mon Aug 26 20:39:42 2019
 import pandas as pd
 import numpy as np 
 # Leitura de arquivo para criação da base_herois de dados
-base_herois = pd.read_csv('herois.csv')
-base_herois_superpower = pd.read_csv('superpoderes.csv')
+base_herois = pd.read_csv('Datasets\herois.csv')
+base_herois_superpower = pd.read_csv('Datasets\superpoderes.csv')
 
 # Tratamento de valores negativos e agrupamento de classes do Atributo WEIGTH
 # Leve = 0, Medio = 1, Pesado = 2
