@@ -1,7 +1,11 @@
+
+# -*- coding: utf-8 -*-
 """
-Created on Thu Jul  4 11:20:05 2019
-@author: Ramon Silva, Adlla Katarine, Daniel Alves
+Created on Mon Aug 26 20:34:01 2019
+
+@author: Adlla Katarine, Daniel Alves, Ramon Silva
 """
+
 import pandas as pd
 import numpy as np 
 # Leitura de arquivo para criação da base_herois de dados
@@ -15,6 +19,10 @@ base_herois.loc[base_herois.Weight == 0, 'Weight'] = int(base_herois['Weight'].m
 base_herois.loc[base_herois.Weight < 75, 'Weight'] = 0
 base_herois.loc[base_herois.Weight > 75, 'Weight'] = 2
 base_herois.loc[base_herois.Weight == 75, 'Weight'] = 1
+
+# Agrupamento de classes do Atributo Publisher
+# Dividido entre Marvel Comics e Outhers
+base_herois.loc[base_herois.Publisher != 'Marvel Comics', 'Publisher'] = 'Outhers'
 
 
 # Tratamento de valores negativos e agrupamento de classes do Atributo HEIGTH
@@ -56,6 +64,7 @@ previsores = result.iloc[0:734,2:178].values
 # Tratando valores 'nan' da base de dados
 from sklearn.impute import SimpleImputer
 # Imputer recebe a classe que tratar dados nulos
+
 # Preenchendo valores nulos com os mais frequentes
 imputer = SimpleImputer(missing_values=np.nan, strategy='most_frequent')
 imputer = imputer.fit(previsores[:,:]) 
@@ -96,6 +105,11 @@ imputer = SimpleImputer(missing_values = 'neutral', strategy='constant', fill_va
 imputer = imputer.fit(previsores[:,7].reshape(1,-1)) 
 previsores[:,7] = imputer.fit_transform(previsores[:,7].reshape(1,-1))
 
+# Atribui os valores vagos de ALIGNMENT como a classe NO-GOOD
+imputer = SimpleImputer(missing_values = '-', strategy='constant', fill_value='no-good')
+imputer = imputer.fit(previsores[:,7].reshape(1,-1)) 
+previsores[:,7] = imputer.fit_transform(previsores[:,7].reshape(1,-1))
+
 # Atribui os valores vagos com o mais frequentes aos dados restantes
 imputer = SimpleImputer(missing_values='-', strategy='most_frequent')
 imputer = imputer.fit(previsores[:,:]) 
@@ -106,9 +120,11 @@ result = pd.DataFrame(previsores)
 guarda = result
 
 # Cria atributo a ser previsto
+
 classe = result.iloc[:,17].values
 # Exclui o mesmo da base de dados previsora
 result = result.drop(columns=17)
+
 # Retorna a modificação
 previsores = result.iloc[:,:].values
 

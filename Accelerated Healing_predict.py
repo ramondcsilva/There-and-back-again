@@ -1,6 +1,8 @@
+# -*- coding: utf-8 -*-
 """
-Created on Thu Jul  4 11:20:05 2019
-@author: Ramon Silva, Adlla Katarine, Daniel Alves
+Created on Mon Aug 26 20:39:42 2019
+
+@author: Adlla Katarine, Daniel Alves, Ramon Silva
 """
 import pandas as pd
 import numpy as np 
