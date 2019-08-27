@@ -237,3 +237,14 @@ previsoesRF = classificadorRF.predict(previsores_teste)
 ############################################ ENSEMBLE ###########################################
 #################################################################################################
 '''
+
+from sklearn.ensemble import BaggingClassifier
+
+'''
+######################################## BOOSTTRAP AGGREGATING(BAGGING) ########################################
+'''
+bg = BaggingClassifier(DecisionTreeClassifier(), max_samples=0.5, max_features=1.0,n_estimators=20)
+bg.fit(previsores_treinamento, classe_treinamento)
+'''
+######################################## BOOSTING ########################################
+'''
