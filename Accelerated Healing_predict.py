@@ -169,7 +169,7 @@ tree = DecisionTreeClassifier()
 # Inibindo Overfitting
 # Ela testa todos situações, requerendo um maior custo computacional
 from sklearn.model_selection import GridSearchCV
-classificadorTREE = GridSearchCV(tree,paramenter, cv=3)
+classificadorTREE = GridSearchCV(tree, paramenter, cv=3)
 # Execuçaão do treinamento 
 classificadorTREE.fit(previsores_treinamento, classe_treinamento)
 
@@ -204,7 +204,7 @@ import matplotlib.pyplot as plt
 cls_testeTREE = pd.DataFrame(classe_teste).astype('float')
 predsTREE = classificadorTREE.predict_proba(previsores_teste)[::,1]
 # Cria atributos Falso positivo e Verdadeiro positivo
-fprTREE, tprTREE,_ = metrics.roc_curve(cls_testeTREE,predsTREE)
+fprTREE, tprTREE,_ = metrics.roc_curve(cls_testeTREE, predsTREE)
 # Calcula area embaixo da curva roc
 aucTREE = metrics.roc_aucTREE_score(cls_testeTREE, predsTREE)
 # Uso de biblioteca para Plotagem de Gráfico
@@ -226,6 +226,7 @@ classificadorNB.fit(previsores_treinamento, classe_treinamento) #treina o algori
 
 # Testamos os dados para achar sua taxa de acerto
 previsoesNB = classificadorNB.predict(previsores_teste)
+
 
 '''
 ######################################## RANDOM FOREST ########################################
