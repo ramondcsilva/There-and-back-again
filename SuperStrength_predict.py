@@ -196,7 +196,7 @@ predsTREE = classificadorTREE.predict_proba(previsores_teste)[::,1]
 # Cria atributos Falso positivo e Verdadeiro positivo
 fprTREE, tprTREE,_ = metrics.roc_curve(cls_testeTREE, predsTREE)
 # Calcula area embaixo da curva roc
-aucTREE = metrics.roc_aucTREE_score(cls_testeTREE, predsTREE)
+aucTREE = metrics.roc_auc_score(cls_testeTREE, predsTREE)
 # Uso de biblioteca para Plotagem de Gráfico
 plt.plot(fprTREE, tprTREE,'',label="Super Strenght, AUC= %0.2f"% aucTREE)
 plt.title('Receiver Operating Characteristic')
