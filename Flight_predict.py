@@ -1,3 +1,4 @@
+
 # -*- coding: utf-8 -*-
 """
 Created on Mon Aug 26 20:34:01 2019
@@ -22,6 +23,7 @@ base_herois.loc[base_herois.Weight == 75, 'Weight'] = 1
 # Agrupamento de classes do Atributo Publisher
 # Dividido entre Marvel Comics e Outhers
 base_herois.loc[base_herois.Publisher != 'Marvel Comics', 'Publisher'] = 'Outhers'
+
 
 # Tratamento de valores negativos e agrupamento de classes do Atributo HEIGTH
 # Baixo = 0, Alto = 1
@@ -118,9 +120,11 @@ result = pd.DataFrame(previsores)
 guarda = result
 
 # Cria atributo a ser previsto
-classe = result.iloc[:,10].values
+
+classe = result.iloc[:,17].values
 # Exclui o mesmo da base de dados previsora
-result = result.drop(columns=10)
+result = result.drop(columns=17)
+
 # Retorna a modificação
 previsores = result.iloc[:,:].values
 
@@ -137,3 +141,72 @@ previsores[:, 7] = LabelEncoder().fit_transform(previsores[:, 7])
 # Determina o tipo int para todas bases usadas
 previsores = previsores.astype('int')
 classe = classe.astype('int')
+
+# Função do pacote sklearn que divide automaticamente dados teste e dados de treinamento
+from sklearn.model_selection import train_test_split
+# Criando variaveis para treinamento e teste, usando o metodo de divisao dos dados
+# Usou-se 25%(test_size = 0.25) como quantidade de atributos para teste e o restante para treinamento
+previsores_treinamento, previsores_teste, classe_treinamento, classe_teste = train_test_split(previsores, classe, test_size=0.3, random_state=0)
+
+# Hiperparamenters para achar a melhores paramentros para a arvore de decisao
+paramenter = {"max_depth": [3,20],
+              "min_samples_leaf": [1,5],
+              'criterion': ('gini','entropy')}  
+
+# Treinamento a partir de uma Arvore de Decisao 
+from sklearn.tree import DecisionTreeClassifier
+
+# Criação de uma Arvore de Decisao 
+tree = DecisionTreeClassifier()
+
+# Uso de Validação Cruzada em Grade, buscando uma melhor paramentrização para a arvore,
+# Inibindo Overfitting
+# Ela testa todos situações, requerendo um maior custo computacional
+from sklearn.model_selection import GridSearchCV
+classificador = GridSearchCV(tree,
+                             paramenter, 
+                             cv=3)
+# Execuçaão do treinamento 
+classificador.fit(previsores_treinamento, classe_treinamento)
+
+# Retorna o melhor paramentro e seu melhor score
+print("Tuned: {}".format(classificador.best_params_))
+print("Best score is {}".format(classificador.best_score_))
+
+# Testamos os dados para achar sua taxa de acerto
+previsoes = classificador.predict(previsores_teste)
+
+# Usando o Cross_validate para avaliar o classificador
+# Retornando sua taxa de previsao, tempo de execução e recall
+from sklearn.model_selection import cross_validate
+scoring = ['precision_macro', 'recall_macro']
+scores_cv = cross_validate(classificador, 
+                           previsores, 
+                           classe,
+                           scoring=scoring, 
+                           cv=3)
+
+# Avalização por meio de Matriz de Confução e Pontução de Acerto
+from sklearn.metrics import accuracy_score, confusion_matrix
+# Compara dados de dois atributos retornando o percentual de acerto
+accuracy = accuracy_score(classe_teste, previsoes) 
+# Cria uma matriz para comparação de dados dos dois atributos
+matriz = confusion_matrix(classe_teste, previsoes)
+
+# Avaliação da precisão do modelo de predição por meio de curva ROC
+from sklearn import metrics
+import matplotlib.pyplot as plt
+# Ajusta dados para criar medidas de curva
+cls_teste = pd.DataFrame(classe_teste).astype('float')
+preds = classificador.predict_proba(previsores_teste)[::,1]
+# Cria atributos Falso positivo e Verdadeiro positivo
+fpr, tpr,_ = metrics.roc_curve(cls_teste,preds)
+# Calcula area embaixo da curva roc
+auc = metrics.roc_auc_score(cls_teste, preds)
+# Uso de biblioteca para Plotagem de Gráfico
+plt.plot(fpr,tpr,'',label="Flight, AUC= %0.2f"% auc)
+plt.title('Receiver Operating Characteristic')
+plt.xlabel('False Positive')
+plt.ylabel('True Positive')
+plt.legend(loc=4)
+plt.show()

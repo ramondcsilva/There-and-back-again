@@ -1,8 +1,6 @@
-# -*- coding: utf-8 -*-
 """
-Created on Mon Aug 26 20:39:58 2019
-
-@author: Adlla Katarine, Daniel Alves, Ramon Silva
+Created on Thu Jul  4 11:20:05 2019
+@author: Ramon Silva, Adlla Katarine, Daniel Alves
 """
 import pandas as pd
 import numpy as np 
@@ -17,10 +15,6 @@ base_herois.loc[base_herois.Weight == 0, 'Weight'] = int(base_herois['Weight'].m
 base_herois.loc[base_herois.Weight < 75, 'Weight'] = 0
 base_herois.loc[base_herois.Weight > 75, 'Weight'] = 2
 base_herois.loc[base_herois.Weight == 75, 'Weight'] = 1
-
-# Agrupamento de classes do Atributo Publisher
-# Dividido entre Marvel Comics e Outhers
-base_herois.loc[base_herois.Publisher != 'Marvel Comics', 'Publisher'] = 'Outhers'
 
 # Tratamento de valores negativos e agrupamento de classes do Atributo HEIGTH
 # Baixo = 0, Alto = 1
@@ -102,25 +96,20 @@ imputer = SimpleImputer(missing_values = 'neutral', strategy='constant', fill_va
 imputer = imputer.fit(previsores[:,7].reshape(1,-1)) 
 previsores[:,7] = imputer.fit_transform(previsores[:,7].reshape(1,-1))
 
-# Atribui os valores vagos de ALIGNMENT como a classe NO-GOOD
-imputer = SimpleImputer(missing_values = '-', strategy='constant', fill_value='no-good')
-imputer = imputer.fit(previsores[:,7].reshape(1,-1)) 
-previsores[:,7] = imputer.fit_transform(previsores[:,7].reshape(1,-1))
-
 # Atribui os valores vagos com o mais frequentes aos dados restantes
 imputer = SimpleImputer(missing_values='-', strategy='most_frequent')
 imputer = imputer.fit(previsores[:,:]) 
 previsores[:,:] = imputer.fit_transform(previsores[:,:])
+
 
 # Transforma Objeto em DATAFRAME para verificar pre-processamento
 result = pd.DataFrame(previsores)
 guarda = result
 
 # Cria atributo a ser previsto
-
-classe = result.iloc[:,7].values
+classe = result.iloc[:,26].values
 # Exclui o mesmo da base de dados previsora
-result = result.drop(columns=7)
+result = result.drop(columns=26)
 # Retorna a modificação
 previsores = result.iloc[:,:].values
 
@@ -136,7 +125,7 @@ previsores[:, 7] = LabelEncoder().fit_transform(previsores[:, 7])
 
 # Determina o tipo int para todas bases usadas
 previsores = previsores.astype('int')
-classe = LabelEncoder().fit_transform(classe)
+classe = classe.astype('int')
 
 # Função do pacote sklearn que divide automaticamente dados teste e dados de treinamento
 from sklearn.model_selection import train_test_split
@@ -198,7 +187,7 @@ fpr, tpr,_ = metrics.roc_curve(cls_teste,preds)
 # Calcula area embaixo da curva roc
 auc = metrics.roc_auc_score(cls_teste, preds)
 # Uso de biblioteca para Plotagem de Gráfico
-plt.plot(fpr,tpr,'',label="Alignment, AUC= %0.2f"% auc)
+plt.plot(fpr,tpr,'',label="Super Strenght, AUC= %0.2f"% auc)
 plt.title('Receiver Operating Characteristic')
 plt.xlabel('False Positive')
 plt.ylabel('True Positive')
