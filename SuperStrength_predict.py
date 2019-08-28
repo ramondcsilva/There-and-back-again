@@ -187,6 +187,7 @@ accuracyTREE = accuracy_score(classe_teste, previsoesTREE)
 # Cria uma matriz para comparação de dados dos dois atributos
 matrizTREE = confusion_matrix(classe_teste, previsoesTREE)
 
+'''
 # Avaliação da precisão do modelo de predição por meio de curva ROC
 from sklearn import metrics
 import matplotlib.pyplot as plt
@@ -206,7 +207,7 @@ plt.legend(loc=4)
 plt.show()
 
 
-'''
+
 ######################################## NAIVE BAYES ########################################
 '''
 
