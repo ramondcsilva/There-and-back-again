@@ -198,6 +198,7 @@ accuracyTREE = accuracy_score(classe_teste, previsoesTREE)
 # Cria uma matriz para comparação de dados dos dois atributos
 matrizTREE = confusion_matrix(classe_teste, previsoesTREE)
 
+'''
 # Avaliação da precisão do modelo de predição por meio de curva ROC
 from sklearn import metrics
 import matplotlib.pyplot as plt
@@ -208,6 +209,7 @@ predsTREE = classificadorTREE.predict_proba(previsores_teste)[::,1]
 fprTREE, tprTREE,_ = metrics.roc_curve(cls_testeTREE, predsTREE)
 # Calcula area embaixo da curva roc
 aucTREE = metrics.roc_auc_score(cls_testeTREE, predsTREE)
+
 # Uso de biblioteca para Plotagem de Gráfico
 plt.plot(fprTREE, tprTREE, '', label="Accelerated Healing, auc= %0.2f"% aucTREE)
 plt.title('Receiver Operating Characteristic')
@@ -216,8 +218,6 @@ plt.ylabel('True Positive')
 plt.legend(loc=4)
 plt.show()
 
-
-'''
 ######################################## NAIVE BAYES ########################################
 '''
 
@@ -242,7 +242,6 @@ classificadorRF.fit(previsores_treinamento, classe_treinamento) # constrói a fl
 # Testamos os dados para achar sua taxa de acerto
 previsoesRF = classificadorRF.predict(previsores_teste)
 
-
 '''
 #################################################################################################
 ############################################ ENSEMBLE ###########################################
@@ -255,7 +254,7 @@ from sklearn.ensemble import BaggingClassifier, GradientBoostingClassifier
 ######################################## BOOSTTRAP AGGREGATING(BAGGING) ########################################
 '''
 
-bg = BaggingClassifier(DecisionTreeClassifier(), max_samples=0.5, max_features=1.0,n_estimators=20)
+bg = BaggingClassifier(DecisionTreeClassifier(), max_samples=0.5, max_features=1, n_estimators=80)
 bg.fit(previsores_treinamento, classe_treinamento)
 print("bagging " + str(bg.score(previsores_teste, classe_teste)))
 
@@ -263,5 +262,5 @@ print("bagging " + str(bg.score(previsores_teste, classe_teste)))
 ######################################## BOOSTING ########################################
 '''
 
-bt = GradientBoostingClassifier(n_estimators=20).fit(previsores_treinamento, classe_treinamento)
+bt = GradientBoostingClassifier(n_estimators=85).fit(previsores_treinamento, classe_treinamento)
 print("boosting " + str(bt.score(previsores_teste, classe_teste)))
