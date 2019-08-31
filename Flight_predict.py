@@ -203,7 +203,9 @@ from sklearn.metrics import accuracy_score, confusion_matrix
 accuracyTREE = accuracy_score(classe_teste, previsoesTREE) 
 # Cria uma matriz para comparação de dados dos dois atributos
 matrizTREE = confusion_matrix(classe_teste, previsoesTREE)
+]
 
+'''
 # Avaliação da precisão do modelo de predição por meio de curva ROC
 from sklearn import metrics
 import matplotlib.pyplot as plt
@@ -213,9 +215,9 @@ predsTREE = classificadorTREE.predict_proba(previsores_teste)[::,1]
 # Cria atributos Falso positivo e Verdadeiro positivo
 fprTREE, tprTREE,_ = metrics.roc_curve(cls_testeTREE, predsTREE)
 # Calcula area embaixo da curva roc
-aucTREE = metrics.roc_aucTREE_score(cls_testeTREE, predsTREE)
+aucTREE = metrics.roc_auc_score(cls_testeTREE, predsTREE)
 # Uso de biblioteca para Plotagem de Gráfico
-plt.plot(fprTREE, tprTREE,'',label="Flight, AUC= %0.2f"% aucTREE)
+plt.plot(fprTREE, tprTREE, '', label="Flight, AUC= %0.2f"% aucTREE)
 plt.title('Receiver Operating Characteristic')
 plt.xlabel('False Positive')
 plt.ylabel('True Positive')
@@ -223,7 +225,7 @@ plt.legend(loc=4)
 plt.show()
 
 
-'''
+
 ######################################## NAIVE BAYES ########################################
 '''
 
@@ -255,13 +257,19 @@ previsoesRF = classificadorRF.predict(previsores_teste)
 #################################################################################################
 '''
 
-from sklearn.ensemble import BaggingClassifier
+from sklearn.ensemble import BaggingClassifier, GradientBoostingClassifier
 
 '''
 ######################################## BOOSTTRAP AGGREGATING(BAGGING) ########################################
 '''
+
 bg = BaggingClassifier(DecisionTreeClassifier(), max_samples=0.5, max_features=1.0,n_estimators=20)
 bg.fit(previsores_treinamento, classe_treinamento)
+print("bagging " + str(bg.score(previsores_teste, classe_teste)))
+
 '''
 ######################################## BOOSTING ########################################
 '''
+
+bt = GradientBoostingClassifier(n_estimators=20).fit(previsores_treinamento, classe_treinamento)
+print("boosting " + str(bt.score(previsores_teste, classe_teste)))

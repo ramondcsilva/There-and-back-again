@@ -138,11 +138,22 @@ previsores[:, 7] = LabelEncoder().fit_transform(previsores[:, 7])
 previsores = previsores.astype('int')
 classe = classe.astype('int')
 
+'''
+#################################################################################################
+######################################## CLASSIFICADORES ########################################
+#################################################################################################
+'''
+
 # Função do pacote sklearn que divide automaticamente dados teste e dados de treinamento
 from sklearn.model_selection import train_test_split
 # Criando variaveis para treinamento e teste, usando o metodo de divisao dos dados
 # Usou-se 25%(test_size = 0.25) como quantidade de atributos para teste e o restante para treinamento
 previsores_treinamento, previsores_teste, classe_treinamento, classe_teste = train_test_split(previsores, classe, test_size=0.30, random_state=0)
+
+
+'''
+######################################## ÁRVORE DE DECISÃO ########################################
+'''
 
 # Hiperparamenters para achar a melhores paramentros para a arvore de decisao
 paramenter = {"max_depth": [3,20],
@@ -159,22 +170,22 @@ tree = DecisionTreeClassifier()
 # Inibindo Overfitting
 # Ela testa todos situações, requerendo um maior custo computacional
 from sklearn.model_selection import GridSearchCV
-classificador = GridSearchCV(tree,paramenter, cv=3)
+classificadorTREE = GridSearchCV(tree, paramenter, cv=3)
 # Execuçaão do treinamento 
-classificador.fit(previsores_treinamento, classe_treinamento)
+classificadorTREE.fit(previsores_treinamento, classe_treinamento)
 
 # Retorna o melhor paramentro e seu melhor score
-print("Tuned: {}".format(classificador.best_params_))
-print("Best score is {}".format(classificador.best_score_))
+print("Tuned: {}".format(classificadorTREE.best_params_))
+print("Best score is {}".format(classificadorTREE.best_score_))
 
 # Testamos os dados para achar sua taxa de acerto
-previsoes = classificador.predict(previsores_teste)
+previsoesTREE = classificadorTREE.predict(previsores_teste)
 
-# Usando o Cross_validate para avaliar o classificador
+# Usando o Cross_validate para avaliar o classificadorTREE
 # Retornando sua taxa de previsao, tempo de execução e recall
 from sklearn.model_selection import cross_validate
 scoring = ['precision_macro', 'recall_macro']
-scores_cv = cross_validate(classificador, 
+scores_cvTREE = cross_validate(classificadorTREE, 
                            previsores, 
                            classe,
                            scoring=scoring, 
@@ -183,24 +194,74 @@ scores_cv = cross_validate(classificador,
 # Avalização por meio de Matriz de Confução e Pontução de Acerto
 from sklearn.metrics import accuracy_score, confusion_matrix
 # Compara dados de dois atributos retornando o percentual de acerto
-accuracy = accuracy_score(classe_teste, previsoes) 
+accuracyTREE = accuracy_score(classe_teste, previsoesTREE) 
 # Cria uma matriz para comparação de dados dos dois atributos
-matriz = confusion_matrix(classe_teste, previsoes)
+matrizTREE = confusion_matrix(classe_teste, previsoesTREE)
 
+'''
 # Avaliação da precisão do modelo de predição por meio de curva ROC
 from sklearn import metrics
 import matplotlib.pyplot as plt
 # Ajusta dados para criar medidas de curva
-cls_teste = pd.DataFrame(classe_teste).astype('float')
-preds = classificador.predict_proba(previsores_teste)[::,1]
+cls_testeTREE = pd.DataFrame(classe_teste).astype('float')
+predsTREE = classificadorTREE.predict_proba(previsores_teste)[::,1]
 # Cria atributos Falso positivo e Verdadeiro positivo
-fpr, tpr,_ = metrics.roc_curve(cls_teste,preds)
+fprTREE, tprTREE,_ = metrics.roc_curve(cls_testeTREE, predsTREE)
 # Calcula area embaixo da curva roc
-auc = metrics.roc_auc_score(cls_teste, preds)
+aucTREE = metrics.roc_auc_score(cls_testeTREE, predsTREE)
 # Uso de biblioteca para Plotagem de Gráfico
-plt.plot(fpr,tpr,'',label="Super Strenght, AUC= %0.2f"% auc)
+plt.plot(fprTREE, tprTREE, '', label="Super Strenght, AUC= %0.2f"% aucTREE)
 plt.title('Receiver Operating Characteristic')
 plt.xlabel('False Positive')
 plt.ylabel('True Positive')
 plt.legend(loc=4)
 plt.show()
+
+
+######################################## NAIVE BAYES ########################################
+'''
+
+from sklearn.naive_bayes import GaussianNB # importação do algoritmo e sua classe GaussianNB
+classificadorNB = GaussianNB() # instancia da classe GaussianNB
+classificadorNB.fit(previsores_treinamento, classe_treinamento) #treina o algoritmo(cria a tabela de probabilidade)
+
+# Testamos os dados para achar sua taxa de acerto
+previsoesNB = classificadorNB.predict(previsores_teste)
+
+
+'''
+######################################## RANDOM FOREST ########################################
+'''
+
+# RandomForestClassifier é a classe que gera a floresta
+from sklearn.ensemble import RandomForestClassifier
+# instancia a classe RandomForestClassifier
+classificadorRF = RandomForestClassifier(n_estimators=40, criterion='entropy', random_state=0)
+classificadorRF.fit(previsores_treinamento, classe_treinamento) # constrói a floresta
+
+# Testamos os dados para achar sua taxa de acerto
+previsoesRF = classificadorRF.predict(previsores_teste)
+
+
+'''
+#################################################################################################
+############################################ ENSEMBLE ###########################################
+#################################################################################################
+'''
+
+from sklearn.ensemble import BaggingClassifier, GradientBoostingClassifier
+
+'''
+######################################## BOOSTTRAP AGGREGATING(BAGGING) ########################################
+'''
+
+bg = BaggingClassifier(DecisionTreeClassifier(), max_samples=0.5, max_features=1.0,n_estimators=20)
+bg.fit(previsores_treinamento, classe_treinamento)
+print("bagging " + str(bg.score(previsores_teste, classe_teste)))
+
+'''
+######################################## BOOSTING ########################################
+'''
+
+bt = GradientBoostingClassifier(n_estimators=20).fit(previsores_treinamento, classe_treinamento)
+print("boosting " + str(bt.score(previsores_teste, classe_teste)))
