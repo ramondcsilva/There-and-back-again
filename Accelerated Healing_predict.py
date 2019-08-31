@@ -152,11 +152,13 @@ classe = classe.astype('int')
 #################################################################################################
 '''
 
+# Função do pacote sklearn que divide automaticamente dados teste e dados de treinamento
+from sklearn.model_selection import train_test_split
+
+
 '''
 ######################################## ÁRVORE DE DECISÃO ########################################
 '''
-# Função do pacote sklearn que divide automaticamente dados teste e dados de treinamento
-from sklearn.model_selection import train_test_split
 # Criando variaveis para treinamento e teste, usando o metodo de divisao dos dados
 # Usou-se 30%(test_size = 0.30) como quantidade de atributos para teste e o restante para treinamento
 previsores_treinamentoTREE, previsores_testeTREE, classe_treinamentoTREE, classe_testeTREE = train_test_split(previsores, classe, test_size=0.30, random_state=0)
@@ -204,7 +206,7 @@ accuracyTREE = accuracy_score(classe_testeTREE, previsoesTREE)
 # Cria uma matriz para comparação de dados dos dois atributos
 matrizTREE = confusion_matrix(classe_testeTREE, previsoesTREE)
 
-'''
+
 # Avaliação da precisão do modelo de predição por meio de curva ROC
 from sklearn import metrics
 import matplotlib.pyplot as plt
@@ -224,10 +226,11 @@ plt.ylabel('True Positive')
 plt.legend(loc=4)
 plt.show()
 
+
+'''
 ######################################## NAIVE BAYES ########################################
 '''
-# Função do pacote sklearn que divide automaticamente dados teste e dados de treinamento
-from sklearn.model_selection import train_test_split
+
 # Criando variaveis para treinamento e teste, usando o metodo de divisao dos dados
 # Usou-se 20%(test_size = 0.20) como quantidade de atributos para teste e o restante para treinamento
 previsores_treinamentoNB, previsores_testeNB, classe_treinamentoNB, classe_testeNB = train_test_split(previsores, classe, test_size=0.20, random_state=0)
@@ -262,8 +265,7 @@ matrizMultinomial = confusion_matrix(classe_teste, previsoesMultinomial)
 '''
 ######################################## RANDOM FOREST ########################################
 '''
-# Função do pacote sklearn que divide automaticamente dados teste e dados de treinamento
-from sklearn.model_selection import train_test_split
+
 # Criando variaveis para treinamento e teste, usando o metodo de divisao dos dados
 # Usou-se 20%(test_size = 0.20) como quantidade de atributos para teste e o restante para treinamento
 previsores_treinamentoRF, previsores_testeRF, classe_treinamentoRF, classe_testeRF = train_test_split(previsores, classe, test_size=0.20, random_state=0)
@@ -277,30 +279,36 @@ classificadorRF.fit(previsores_treinamentoRF, classe_treinamentoRF) # constrói 
 # Testamos os dados para achar sua taxa de acerto
 previsoesRF = classificadorRF.predict(previsores_testeRF)
 
+
+
+
 '''
 #################################################################################################
 ############################################ ENSEMBLE ###########################################
 #################################################################################################
 '''
 
-# Função do pacote sklearn que divide automaticamente dados teste e dados de treinamento
-from sklearn.model_selection import train_test_split
-# Criando variaveis para treinamento e teste, usando o metodo de divisao dos dados
-# Usou-se 20%(test_size = 0.20) como quantidade de atributos para teste e o restante para treinamento
-previsores_treinamentoBagging, previsores_testeBagging, classe_treinamentoBagging, classe_testeBagging = train_test_split(previsores, classe, test_size=0.20, random_state=0)
-
 from sklearn.ensemble import BaggingClassifier, GradientBoostingClassifier
+
 '''
 ######################################## BOOSTTRAP AGGREGATING(BAGGING) ########################################
 '''
 
-bg = BaggingClassifier(DecisionTreeClassifier(), max_samples=0.5, max_features=1.0,n_estimators=20)
-bg.fit(previsores_treinamentoBagging, classe_treinamentoBagging)
-print("bagging " + str(bg.score(previsores_teste, classe_teste)))
+# Criando variaveis para treinamento e teste, usando o metodo de divisao dos dados
+# Usou-se 20%(test_size = 0.20) como quantidade de atributos para teste e o restante para treinamento
+previsores_treinamentoBagging, previsores_testeBagging, classe_treinamentoBagging, classe_testeBagging = train_test_split(previsores, classe, test_size=0.20, random_state=0)
+
+classificadorBagging = BaggingClassifier(DecisionTreeClassifier(), max_samples=0.5, max_features=1.0,n_estimators=20)
+classificadorBagging.fit(previsores_treinamentoBagging, classe_treinamentoBagging)
+print("bagging " + str(classificadorBagging.score(previsores_testeBagging, classe_testeBagging)))
 
 '''
 ######################################## BOOSTING ########################################
 '''
 
-bt = GradientBoostingClassifier(n_estimators=85).fit(previsores_treinamento, classe_treinamento)
-print("boosting " + str(bt.score(previsores_teste, classe_teste)))
+# Criando variaveis para treinamento e teste, usando o metodo de divisao dos dados
+# Usou-se 20%(test_size = 0.20) como quantidade de atributos para teste e o restante para treinamento
+previsores_treinamentoBoosting, previsores_testeBoosting, classe_treinamentoBoosting, classe_testeBoosting = train_test_split(previsores, classe, test_size=0.20, random_state=0)
+
+classificadorBoosting = GradientBoostingClassifier(n_estimators=85).fit(previsores_treinamentoBoosting, classe_treinamentoBoosting)
+print("boosting " + str(classificadorBoosting.score(previsores_testeBoosting, classe_testeBoosting)))
