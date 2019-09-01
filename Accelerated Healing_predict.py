@@ -247,7 +247,7 @@ previsoesNB = classificadorNB.predict(previsores_teste)	# Testamos os dados para
 print("Best test score is {}".format(classificadorNB.score(previsores_teste,classe_teste)))
 #Retorna a precisão média nos dados e rótulos de treinamento fornecidos.
 print("Best training score is {}".format(classificadorNB.score(previsores_treinamento,classe_treinamento)))
-
+ 
 
 # Compara dados de dois atributos retornando o percentual de acerto
 accuracyNB = accuracy_score(classe_teste, previsoesNB)
