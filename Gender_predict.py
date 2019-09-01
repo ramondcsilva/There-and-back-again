@@ -147,16 +147,16 @@ classe = LabelEncoder().fit_transform(classe)
 #################################################################################################
 '''
 
-
 # Função do pacote sklearn que divide automaticamente dados teste e dados de treinamento
 from sklearn.model_selection import train_test_split
+
 
 '''
 ######################################## ÁRVORE DE DECISÃO ########################################
 '''
 # Criando variaveis para treinamento e teste, usando o metodo de divisao dos dados
 # Usou-se 30%(test_size = 0.30) como quantidade de atributos para teste e o restante para treinamento
-previsores_treinamentoTREE, previsores_testeTREE, classe_treinamentoTREE, classe_testeTREE = train_test_split(previsores, classe, test_size=0.30, random_state=0)
+previsores_treinamento, previsores_teste, classe_treinamento, classe_teste = train_test_split(previsores, classe, test_size=0.30, random_state=0)
 
 # Hiperparamenters para achar a melhores paramentros para a arvore de decisao
 paramenter = {"max_depth": [3,20],
@@ -175,14 +175,14 @@ tree = DecisionTreeClassifier()
 from sklearn.model_selection import GridSearchCV
 classificadorTREE = GridSearchCV(tree, paramenter, cv=3)
 # Execuçaão do treinamento 
-classificadorTREE.fit(previsores_treinamentoTREE, classe_treinamentoTREE)
+classificadorTREE.fit(previsores_treinamento, classe_treinamento)
 
 # Retorna o melhor paramentro e seu melhor score
 print("Tuned: {}".format(classificadorTREE.best_params_))
 print("Best score is {}".format(classificadorTREE.best_score_))
 
 # Testamos os dados para achar sua taxa de acerto
-previsoesTREE = classificadorTREE.predict(previsores_testeTREE)
+previsoesTREE = classificadorTREE.predict(previsores_teste)
 
 # Usando o Cross_validate para avaliar o classificadorTREE
 # Retornando sua taxa de previsao, tempo de execução e recall
@@ -197,59 +197,56 @@ scores_cvTREE = cross_validate(classificadorTREE,
 # Avalização por meio de Matriz de Confução e Pontução de Acerto
 from sklearn.metrics import accuracy_score, confusion_matrix
 # Compara dados de dois atributos retornando o percentual de acerto
-accuracyTREE = accuracy_score(classe_testeTREE, previsoesTREE) 
+accuracyTREE = accuracy_score(classe_teste, previsoesTREE) 
 # Cria uma matriz para comparação de dados dos dois atributos
-matrizTREE = confusion_matrix(classe_testeTREE, previsoesTREE)
+matrizTREE = confusion_matrix(classe_teste, previsoesTREE)
 
 '''
 ######################################## NAIVE BAYES ########################################
 '''
 
-# Criando variaveis para treinamento e teste, usando o metodo de divisao dos dados
-# Usou-se 25%(test_size = 0.25) como quantidade de atributos para teste e o restante para treinamento
-previsores_treinamentoNB, previsores_testeNB, classe_treinamentoNB, classe_testeNB = train_test_split(previsores, classe, test_size=0.25, random_state=0)
 
 from sklearn.naive_bayes import BernoulliNB # importação do algoritmo e sua classe BernoulliNB
 classificadorNB = BernoulliNB()
-classificadorNB.fit(previsores_treinamentoNB, classe_treinamentoNB) #treina o algoritmo(cria a tabela de probabilidade)
-previsoesNB = classificadorNB.predict(previsores_testeNB)	# Testamos os dados para achar sua taxa de acerto
+classificadorNB.fit(previsores_treinamento, classe_treinamento) #treina o algoritmo(cria a tabela de probabilidade)
+previsoesNB = classificadorNB.predict(previsores_teste)	# Testamos os dados para achar sua taxa de acerto
 #Retorna a precisão média nos dados e rótulos de teste fornecidos.
-print("Best test score is {}".format(classificadorNB.score(previsores_testeNB,classe_testeNB)))
+print("Best test score is {}".format(classificadorNB.score(previsores_teste,classe_teste)))
 #Retorna a precisão média nos dados e rótulos de treinamento fornecidos.
-print("Best training score is {}".format(classificadorNB.score(previsores_treinamentoNB,classe_treinamentoNB)))
+print("Best training score is {}".format(classificadorNB.score(previsores_treinamento,classe_treinamento)))
 
 from sklearn.metrics import accuracy_score, confusion_matrix
 # Compara dados de dois atributos retornando o percentual de acerto
-accuracyNB = accuracy_score(classe_testeNB, previsoesNB)
+accuracyNB = accuracy_score(classe_teste, previsoesNB)
 # Cria uma matriz para comparação de dados dos dois atributos 
-matrizNB = confusion_matrix(classe_testeNB, previsoesNB)
-
+matrizNB = confusion_matrix(classe_teste, previsoesNB)
 
 from sklearn.model_selection import cross_val_score #importação do algoritmo de validação cruzada
-#resultado da avaliação cruzada feita com 2 testes. k=2
-
-resultados = cross_val_score(classificadorNB, previsores, classe, cv = 2)
+#resultado da avaliação cruzada feita com 3 testes. k=3
+resultados = cross_val_score(classificadorNB, previsores, classe, cv = 3)
 #média dos resultados da avaliação cruzada
 print("Cross Validation Mean: {}".format(resultados.mean()))
 #desvio padrão dos resultados da avaliação cruzada
 print("Cross-Validation Standard Deviation: {}".format(resultados.std()))
 
+
+
+
+
 '''
 ######################################## RANDOM FOREST ########################################
 '''
-
-# Criando variaveis para treinamento e teste, usando o metodo de divisao dos dados
-# Usou-se 20%(test_size = 0.20) como quantidade de atributos para teste e o restante para treinamento
-previsores_treinamentoRF, previsores_testeRF, classe_treinamentoRF, classe_testeRF = train_test_split(previsores, classe, test_size=0.20, random_state=0)
 
 # RandomForestClassifier é a classe que gera a floresta
 from sklearn.ensemble import RandomForestClassifier
 # instancia a classe RandomForestClassifier
 classificadorRF = RandomForestClassifier(n_estimators=40, criterion='entropy', random_state=0)
-classificadorRF.fit(previsores_treinamentoRF, classe_treinamentoRF) # constrói a floresta
+classificadorRF.fit(previsores_treinamento, classe_treinamento) # constrói a floresta
 
 # Testamos os dados para achar sua taxa de acerto
-previsoesRF = classificadorRF.predict(previsores_testeRF)
+previsoesRF = classificadorRF.predict(previsores_teste)
+
+
 
 
 '''
@@ -264,21 +261,14 @@ from sklearn.ensemble import BaggingClassifier, GradientBoostingClassifier
 ######################################## BOOSTTRAP AGGREGATING(BAGGING) ########################################
 '''
 
-# Criando variaveis para treinamento e teste, usando o metodo de divisao dos dados
-# Usou-se 20%(test_size = 0.20) como quantidade de atributos para teste e o restante para treinamento
-previsores_treinamentoBagging, previsores_testeBagging, classe_treinamentoBagging, classe_testeBagging = train_test_split(previsores, classe, test_size=0.20, random_state=0)
-
 classificadorBagging = BaggingClassifier(DecisionTreeClassifier(), max_samples=0.5, max_features=1.0,n_estimators=20)
-classificadorBagging.fit(previsores_treinamentoBagging, classe_treinamentoBagging)
-print("bagging " + str(classificadorBagging.score(previsores_testeBagging, classe_testeBagging)))
+classificadorBagging.fit(previsores_treinamento, classe_treinamento)
+print("bagging " + str(classificadorBagging.score(previsores_teste, classe_teste)))
 
 '''
 ######################################## BOOSTING ########################################
 '''
 
-# Criando variaveis para treinamento e teste, usando o metodo de divisao dos dados
-# Usou-se 20%(test_size = 0.20) como quantidade de atributos para teste e o restante para treinamento
-previsores_treinamentoBoosting, previsores_testeBoosting, classe_treinamentoBoosting, classe_testeBoosting = train_test_split(previsores, classe, test_size=0.20, random_state=0)
 
-classificadorBoosting = GradientBoostingClassifier(n_estimators=85).fit(previsores_treinamentoBoosting, classe_treinamentoBoosting)
-print("boosting " + str(classificadorBoosting.score(previsores_testeBoosting, classe_testeBoosting)))
+classificadorBoosting = GradientBoostingClassifier(n_estimators=85).fit(previsores_treinamento, classe_treinamento)
+print("boosting " + str(classificadorBoosting.score(previsores_teste, classe_teste)))
