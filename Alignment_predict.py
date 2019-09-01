@@ -279,20 +279,20 @@ previsoesRF = classificadorRF.predict(previsores_teste)
 #################################################################################################
 '''
 
-from sklearn.ensemble import BaggingClassifier, GradientBoostingClassifier
+from sklearn.ensemble import BaggingClassifier, AdaBoostClassifier
 
 '''
 ######################################## BOOSTTRAP AGGREGATING(BAGGING) ########################################
 '''
 
-classificadorBagging = BaggingClassifier(DecisionTreeClassifier(), max_samples=0.5, max_features=1.0,n_estimators=20)
+classificadorBagging = BaggingClassifier(DecisionTreeClassifier(), max_samples=0.5, max_features=1.0,n_estimators=50)
 classificadorBagging.fit(previsores_treinamento, classe_treinamento)
 print("bagging " + str(classificadorBagging.score(previsores_teste, classe_teste)))
 
 '''
-######################################## BOOSTING ########################################
+######################################## ADAPTIVE BOOSTING(ADA-BOOST) ########################################
 '''
-
-
-classificadorBoosting = GradientBoostingClassifier(n_estimators=85).fit(previsores_treinamento, classe_treinamento)
-print("boosting " + str(classificadorBoosting.score(previsores_teste, classe_teste)))
+#criando uma ensemble de AdaBoost com 25 árvores de decisão
+classificadorAdaBoost = AdaBoostClassifier(tree, n_estimators = 25, learning_rate = 1)
+classificadorAdaBoost.fit(previsores_treinamento, classe_treinamento)
+print("Ada-Boost " + str(classificadorAdaBoost.score(previsores_teste, classe_teste)))
