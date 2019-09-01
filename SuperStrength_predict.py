@@ -226,12 +226,26 @@ from sklearn.naive_bayes import BernoulliNB # importação do algoritmo e sua cl
 classificadorNB = BernoulliNB()
 classificadorNB.fit(previsores_treinamentoNB, classe_treinamentoNB) #treina o algoritmo(cria a tabela de probabilidade)
 previsoesNB = classificadorNB.predict(previsores_testeNB)	# Testamos os dados para achar sua taxa de acerto
+#Retorna a precisão média nos dados e rótulos de teste fornecidos.
+print("Best test score is {}".format(classificadorNB.score(previsores_testeNB,classe_testeNB)))
+#Retorna a precisão média nos dados e rótulos de treinamento fornecidos.
+print("Best training score is {}".format(classificadorNB.score(previsores_treinamentoNB,classe_treinamentoNB)))
 
 from sklearn.metrics import accuracy_score, confusion_matrix
-
-accuracyNB = accuracy_score(classe_testeNB, previsoesNB) 
+# Compara dados de dois atributos retornando o percentual de acerto
+accuracyNB = accuracy_score(classe_testeNB, previsoesNB)
+# Cria uma matriz para comparação de dados dos dois atributos 
 matrizNB = confusion_matrix(classe_testeNB, previsoesNB)
 
+
+from sklearn.model_selection import cross_val_score #importação do algoritmo de validação cruzada
+#resultado da avaliação cruzada feita com 17 testes. k=17
+
+resultados = cross_val_score(classificadorNB, previsores, classe, cv = 17)
+#média dos resultados da avaliação cruzada
+print("Cross Validation Mean: {}".format(resultados.mean()))
+#desvio padrão dos resultados da avaliação cruzada
+print("Cross-Validation Standard Deviation: {}".format(resultados.std()))
 
 '''
 ######################################## RANDOM FOREST ########################################
