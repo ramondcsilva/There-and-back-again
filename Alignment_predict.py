@@ -196,6 +196,14 @@ print("Best score is {}".format(classificadorTREE.best_score_))
 # Testamos os dados para achar sua taxa de acerto
 previsoesTREE = classificadorTREE.predict(previsores_teste)
 
+#resultado da avaliação cruzada feita com 3 testes. k=3
+resultado_cvTREE = cross_val_score(classificadorTREE, previsores, classe, cv = 3)
+#média dos resultados da avaliação cruzada
+print("TREE Cross Validation Mean: {}".format(resultado_cvTREE.mean()))
+#desvio padrão dos resultados da avaliação cruzada
+print("TREE Cross-Validation Standard Deviation: {}".format(resultado_cvTREE.std()))
+
+
 # Usando o Cross_validate para avaliar o classificadorTREE
 scoring = ['precision_macro', 'recall_macro']
 scores_cvTREE = cross_validate(classificadorTREE, 
@@ -256,6 +264,31 @@ print("Cross Validation Mean: {}".format(resultados.mean()))
 print("Cross-Validation Standard Deviation: {}".format(resultados.std()))
 
 
+# Usando o Cross_validate para avaliar o classificadorNB
+scoring = ['precision_macro', 'recall_macro']
+scores_cvNB = cross_validate(classificadorNB, 
+                           previsores, 
+                           classe,
+                           scoring=scoring, 
+                           cv=3)
+
+
+# Avaliação da precisão do modelo de predição por meio de curva ROC
+# Ajusta dados para criar medidas de curva
+cls_testeNB = pd.DataFrame(classe_teste).astype('float')
+predsNB = classificadorNB.predict_proba(previsores_teste)[::,1]
+# Cria atributos Falso positivo e Verdadeiro positivo
+fprNB, tprNB,_ = metrics.roc_curve(cls_testeNB, predsNB)
+# Calcula area embaixo da curva roc
+aucNB = metrics.roc_auc_score(cls_testeNB, predsNB)
+
+# Uso de biblioteca para Plotagem de Gráfico
+plt.plot(fprNB, tprNB, '', label="Alignment, auc= %0.2f"% aucNB)
+plt.title('Receiver Operating Characteristic')
+plt.xlabel('False Positive')
+plt.ylabel('True Positive')
+plt.legend(loc=4)
+plt.show()
 
 '''
 ######################################## RANDOM FOREST ########################################

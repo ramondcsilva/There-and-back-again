@@ -141,16 +141,22 @@ classe = classe.astype('int')
 #################################################################################################
 '''
 
-# Função do pacote sklearn que divide automaticamente dados teste e dados de treinamento
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split #Função do pacote sklearn que divide automaticamente dados teste e dados de treinamento
+from sklearn.model_selection import cross_val_score #importação do algoritmo de validação cruzada
+from sklearn.model_selection import cross_validate #Retorna a taxa de previsao, tempo de execução e recall
+from sklearn.metrics import accuracy_score, confusion_matrix #Avalização por meio de Matriz de Confução e Pontução de Acerto
+from sklearn import metrics
+import matplotlib.pyplot as plt
+
+
+# Criando variaveis para treinamento e teste, usando o metodo de divisao dos dados
+# Usou-se 30%(test_size = 0.30) como quantidade de atributos para teste e o restante para treinamento
+previsores_treinamento, previsores_teste, classe_treinamento, classe_teste = train_test_split(previsores, classe, test_size=0.30, random_state=0)
 
 
 '''
 ######################################## ÁRVORE DE DECISÃO ########################################
 '''
-# Criando variaveis para treinamento e teste, usando o metodo de divisao dos dados
-# Usou-se 30%(test_size = 0.30) como quantidade de atributos para teste e o restante para treinamento
-previsores_treinamento, previsores_teste, classe_treinamento, classe_teste = train_test_split(previsores, classe, test_size=0.30, random_state=0)
 
 # Hiperparamenters para achar a melhores paramentros para a arvore de decisao
 paramenter = {"max_depth": [3,20],
@@ -178,9 +184,14 @@ print("Best score is {}".format(classificadorTREE.best_score_))
 # Testamos os dados para achar sua taxa de acerto
 previsoesTREE = classificadorTREE.predict(previsores_teste)
 
+#resultado da avaliação cruzada feita com 3 testes. k=3
+resultado_cvTREE = cross_val_score(classificadorTREE, previsores, classe, cv = 3)
+#média dos resultados da avaliação cruzada
+print("TREE Cross Validation Mean: {}".format(resultado_cvTREE.mean()))
+#desvio padrão dos resultados da avaliação cruzada
+print("TREE Cross-Validation Standard Deviation: {}".format(resultado_cvTREE.std()))
+
 # Usando o Cross_validate para avaliar o classificadorTREE
-# Retornando sua taxa de previsao, tempo de execução e recall
-from sklearn.model_selection import cross_validate
 scoring = ['precision_macro', 'recall_macro']
 scores_cvTREE = cross_validate(classificadorTREE, 
                            previsores, 
@@ -188,15 +199,14 @@ scores_cvTREE = cross_validate(classificadorTREE,
                            scoring=scoring, 
                            cv=3)
 
-# Avalização por meio de Matriz de Confução e Pontução de Acerto
-from sklearn.metrics import accuracy_score, confusion_matrix
+
 # Compara dados de dois atributos retornando o percentual de acerto
 accuracyTREE = accuracy_score(classe_teste, previsoesTREE) 
 # Cria uma matriz para comparação de dados dos dois atributos
 matrizTREE = confusion_matrix(classe_teste, previsoesTREE)
+
+
 # Avaliação da precisão do modelo de predição por meio de curva ROC
-from sklearn import metrics
-import matplotlib.pyplot as plt
 # Ajusta dados para criar medidas de curva
 cls_testeTREE = pd.DataFrame(classe_teste).astype('float')
 predsTREE = classificadorTREE.predict_proba(previsores_teste)[::,1]
@@ -228,19 +238,46 @@ print("Best test score is {}".format(classificadorNB.score(previsores_teste,clas
 #Retorna a precisão média nos dados e rótulos de treinamento fornecidos.
 print("Best training score is {}".format(classificadorNB.score(previsores_treinamento,classe_treinamento)))
 
-from sklearn.metrics import accuracy_score, confusion_matrix
+
 # Compara dados de dois atributos retornando o percentual de acerto
 accuracyNB = accuracy_score(classe_teste, previsoesNB)
 # Cria uma matriz para comparação de dados dos dois atributos 
 matrizNB = confusion_matrix(classe_teste, previsoesNB)
 
-from sklearn.model_selection import cross_val_score #importação do algoritmo de validação cruzada
+
 #resultado da avaliação cruzada feita com 3 testes. k=3
 resultados = cross_val_score(classificadorNB, previsores, classe, cv = 3)
 #média dos resultados da avaliação cruzada
 print("Cross Validation Mean: {}".format(resultados.mean()))
 #desvio padrão dos resultados da avaliação cruzada
 print("Cross-Validation Standard Deviation: {}".format(resultados.std()))
+
+
+# Usando o Cross_validate para avaliar o classificadorNB
+scoring = ['precision_macro', 'recall_macro']
+scores_cvNB = cross_validate(classificadorNB, 
+                           previsores, 
+                           classe,
+                           scoring=scoring, 
+                           cv=3)
+
+
+# Avaliação da precisão do modelo de predição por meio de curva ROC
+# Ajusta dados para criar medidas de curva
+cls_testeNB = pd.DataFrame(classe_teste).astype('float')
+predsNB = classificadorNB.predict_proba(previsores_teste)[::,1]
+# Cria atributos Falso positivo e Verdadeiro positivo
+fprNB, tprNB,_ = metrics.roc_curve(cls_testeNB, predsNB)
+# Calcula area embaixo da curva roc
+aucNB = metrics.roc_auc_score(cls_testeNB, predsNB)
+
+# Uso de biblioteca para Plotagem de Gráfico
+plt.plot(fprNB, tprNB, '', label="Super Strenght, auc= %0.2f"% aucNB)
+plt.title('Receiver Operating Characteristic')
+plt.xlabel('False Positive')
+plt.ylabel('True Positive')
+plt.legend(loc=4)
+plt.show()
 
 
 '''
