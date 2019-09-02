@@ -234,8 +234,6 @@ print("Cross-Validation Standard Deviation: {}".format(resultados.std()))
 
 
 
-
-
 '''
 ######################################## RANDOM FOREST ########################################
 '''
@@ -243,14 +241,30 @@ print("Cross-Validation Standard Deviation: {}".format(resultados.std()))
 # RandomForestClassifier é a classe que gera a floresta
 from sklearn.ensemble import RandomForestClassifier
 # instancia a classe RandomForestClassifier
-classificadorRF = RandomForestClassifier(n_estimators=40, criterion='entropy', random_state=0)
+classificadorRF = RandomForestClassifier(n_estimators=1000, criterion='entropy', random_state=0)
 classificadorRF.fit(previsores_treinamento, classe_treinamento) # constrói a floresta
 
 # Testamos os dados para achar sua taxa de acerto
 previsoesRF = classificadorRF.predict(previsores_teste)
 
 
+'''
+####################################### Voting Classifier  ########################################
+'''
+from sklearn.ensemble import VotingClassifier
 
+votingClf = VotingClassifier(estimators=[('tr', classificadorTREE), 
+                                         ('rf', classificadorRF), 
+                                         ('nb', classificadorNB)], 
+                                           voting='soft', weights = [1,2.5,1])
+
+
+for clf, label in zip([classificadorTREE, classificadorRF, classificadorNB, votingClf], ['Decision Tree', 'Random Forest', 'Naive Bayes', 'Ensemble']):
+
+    scores = cross_val_score(clf, previsores, classe, cv=5, scoring='accuracy')
+    print("Accuracy: %0.2f [%s]" % (scores.mean(), label))
+    
+    
 
 '''
 #################################################################################################
@@ -261,17 +275,17 @@ previsoesRF = classificadorRF.predict(previsores_teste)
 from sklearn.ensemble import BaggingClassifier, AdaBoostClassifier
 
 '''
-######################################## BOOSTTRAP AGGREGATING(BAGGING) ########################################
+################################### BOOSTTRAP AGGREGATING(BAGGING) ########################################
 '''
 
-classificadorBagging = BaggingClassifier(DecisionTreeClassifier(), max_samples=0.5, max_features=1.0,n_estimators=30)
+classificadorBagging = BaggingClassifier(votingClf, max_samples=0.5, max_features=1.0, n_estimators=5)
 classificadorBagging.fit(previsores_treinamento, classe_treinamento)
-print("bagging " + str(classificadorBagging.score(previsores_teste, classe_teste)))
+print("Bagging " + str(classificadorBagging.score(previsores_teste, classe_teste)))
 
 '''
-######################################## ADAPTIVE BOOSTING(ADA-BOOST) ########################################
+################################### ADAPTIVE BOOSTING(ADA-BOOST) ########################################
 '''
 #criando uma ensemble de AdaBoost com 20 árvores de decisão
-classificadorAdaBoost = AdaBoostClassifier(tree, n_estimators = 40, learning_rate = 1)
+classificadorAdaBoost = AdaBoostClassifier(votingClf, n_estimators = 5, learning_rate = 1)
 classificadorAdaBoost.fit(previsores_treinamento, classe_treinamento)
 print("Ada-Boost " + str(classificadorAdaBoost.score(previsores_teste, classe_teste)))
