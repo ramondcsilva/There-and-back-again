@@ -182,7 +182,7 @@ f1TREE = f1_score(classe_teste, previsoesTREE, average='micro')
 # Cria uma matriz para comparação de dados dos dois atributos
 matrizTREE = confusion_matrix(classe_teste, previsoesTREE)
 
-'''
+
 # Avaliação da precisão do modelo de predição por meio de curva ROC
 # Ajusta dados para criar medidas de curva
 cls_testeTREE = pd.DataFrame(classe_teste).astype('float')
@@ -201,7 +201,7 @@ plt.legend(loc=4)
 plt.show()
 
 
-
+'''
 ######################################## NAIVE BAYES ########################################
 '''
 
@@ -237,7 +237,6 @@ scores_cvNB = cross_validate(classificadorNB,
                            scoring=scoring, 
                            cv=3)
 
-'''
 # Avaliação da precisão do modelo de predição por meio de curva ROC
 # Ajusta dados para criar medidas de curva
 cls_testeNB = pd.DataFrame(classe_teste).astype('float')
@@ -256,7 +255,7 @@ plt.legend(loc=4)
 plt.show()
 
 
-
+'''
 ######################################## RANDOM FOREST ########################################
 '''
 
@@ -296,7 +295,7 @@ scores_cvRF = cross_validate(classificadorRF,
                            scoring=scoring, 
                            cv=3)
 
-'''
+
 # Avaliação da precisão do modelo de predição por meio de curva ROC
 # Ajusta dados para criar medidas de curva
 cls_testeRF = pd.DataFrame(classe_teste).astype('float')
@@ -314,7 +313,7 @@ plt.ylabel('True Positive')
 plt.legend(loc=4)
 plt.show()
 
-
+'''
 ####################################### VOTING_CLASSIFIER  ########################################
 '''
 from sklearn.ensemble import VotingClassifier
