@@ -2,7 +2,7 @@
 """
 Created on Mon Aug 26 20:39:42 2019
 
-@author: Adlla Katarine, Daniel Alves, Ramon Silva
+@author: Adlla Katarine, Daniel Alves, Ramon Silva with python 3.6
 """
 
 import pandas as pd
@@ -123,7 +123,7 @@ classe = classe.astype('int')
 from sklearn.model_selection import train_test_split    #Função do pacote sklearn que divide automaticamente dados teste e dados de treinamento
 from sklearn.model_selection import cross_val_score     #importação do algoritmo de validação cruzada
 from sklearn.model_selection import cross_validate      #Retorna a taxa de previsao, tempo de execução e recall
-from sklearn.metrics import confusion_matrix, .  #Avalização por meio de Matriz de Confução
+from sklearn.metrics import confusion_matrix, f1_score  #Avalização por meio de Matriz de Confução
 from sklearn import metrics
 import matplotlib.pyplot as plt
 
@@ -176,9 +176,12 @@ scores_cvTREE = cross_validate(classificadorTREE,
                            scoring=scoring, 
                            cv=3)
 
+# Metrica que usar valores de precisão e recall
+f1TREE = f1_score(classe_teste, previsoesTREE, average='micro')
 
 # Cria uma matriz para comparação de dados dos dois atributos
 matrizTREE = confusion_matrix(classe_teste, previsoesTREE)
+
 
 # Avaliação da precisão do modelo de predição por meio de curva ROC
 # Ajusta dados para criar medidas de curva
@@ -212,6 +215,9 @@ print("Best test score is {}".format(classificadorNB.score(previsores_teste,clas
 #Retorna a precisão média nos dados e rótulos de treinamento fornecidos.
 print("Best training score is {}".format(classificadorNB.score(previsores_treinamento,classe_treinamento)))
  
+# Metrica que usar valores de precisão e recall
+f1NB = f1_score(classe_teste, previsoesNB, average='micro')
+
 # Cria uma matriz para comparação de dados dos dois atributos 
 matrizNB = confusion_matrix(classe_teste, previsoesNB)
 
@@ -268,6 +274,8 @@ print("Best test score is {}".format(classificadorRF.score(previsores_teste,clas
 #Retorna a precisão média nos dados e rótulos de treinamento fornecidos.
 print("Best training score is {}".format(classificadorRF.score(previsores_treinamento,classe_treinamento)))
  
+# Metrica que usar valores de precisão e recall
+f1RF = f1_score(classe_teste, previsoesRF, average='micro')
 
 # Cria uma matriz para comparação de dados dos dois atributos 
 matrizRF = confusion_matrix(classe_teste, previsoesRF)

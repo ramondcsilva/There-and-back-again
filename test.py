@@ -176,6 +176,8 @@ scores_cvTREE = cross_validate(classificadorTREE,
                            scoring=scoring, 
                            cv=3)
 
+# Metrica que usar valores de precisão e recall
+f1TREE = f1_score(classe_teste, previsoesTREE, average='micro')
 
 # Cria uma matriz para comparação de dados dos dois atributos
 matrizTREE = confusion_matrix(classe_teste, previsoesTREE)
@@ -213,6 +215,9 @@ print("Best test score is {}".format(classificadorNB.score(previsores_teste,clas
 #Retorna a precisão média nos dados e rótulos de treinamento fornecidos.
 print("Best training score is {}".format(classificadorNB.score(previsores_treinamento,classe_treinamento)))
  
+# Metrica que usar valores de precisão e recall
+f1NB = f1_score(classe_teste, previsoesNB, average='micro')
+
 # Cria uma matriz para comparação de dados dos dois atributos 
 matrizNB = confusion_matrix(classe_teste, previsoesNB)
 
@@ -269,6 +274,8 @@ print("Best test score is {}".format(classificadorRF.score(previsores_teste,clas
 #Retorna a precisão média nos dados e rótulos de treinamento fornecidos.
 print("Best training score is {}".format(classificadorRF.score(previsores_treinamento,classe_treinamento)))
  
+# Metrica que usar valores de precisão e recall
+f1RF = f1_score(classe_teste, previsoesRF, average='micro')
 
 # Cria uma matriz para comparação de dados dos dois atributos 
 matrizRF = confusion_matrix(classe_teste, previsoesRF)
