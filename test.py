@@ -2,7 +2,7 @@
 """
 Created on Mon Aug 26 20:39:42 2019
 
-@author: Adlla Katarine, Daniel Alves, Ramon Silva with python 3.6
+@author: Adlla Katarine, Daniel Alves, Ramon Silva
 """
 
 import pandas as pd
@@ -103,9 +103,9 @@ previsores = KNN(k = 5).fit_transform(previsores)
 result = pd.DataFrame(previsores)
 
 # Cria atributo a ser previsto
-classe = result.iloc[:,26].values
+classe = result.iloc[:,10].values
 # Exclui o mesmo da base de dados previsora
-result = result.drop(columns = 26)
+result = result.drop(columns = 10)
 # Retorna a modificação
 previsores = result.iloc[:,:].values
 
