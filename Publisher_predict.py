@@ -30,7 +30,8 @@ base_herois.loc[base_herois.Weight > 75, 'Weight'] = 2
 # Agrupamento de classes do Atributo Publisher
 # Dividido entre Marvel Comics e Outhers
 base_herois.loc[base_herois.Publisher != 'Marvel Comics', 'Publisher'] = 'Outhers'
-
+base_herois.loc[base_herois.Publisher == 'Marvel Comics', 'Publisher'] = 0
+base_herois.loc[base_herois.Publisher == 'Outhers', 'Publisher'] = 1
 # Tratamento de valores negativos e agrupamento de classes do Atributo HEIGTH
 # Baixo = 0, Alto = 1
 base_herois.loc[base_herois.Height < 0, 'Height'] = 0 
@@ -89,19 +90,19 @@ previsores[:, 0] = LabelEncoder().fit_transform(previsores[:, 0].astype('str'))
 previsores[:, 1] = LabelEncoder().fit_transform(previsores[:, 1].astype('str'))
 previsores[:, 2] = LabelEncoder().fit_transform(previsores[:, 2].astype('str'))
 previsores[:, 3] = LabelEncoder().fit_transform(previsores[:, 3].astype('str'))
-previsores[:, 5] = LabelEncoder().fit_transform(previsores[:, 5].astype('str'))
 previsores[:, 6] = LabelEncoder().fit_transform(previsores[:, 6].astype('str'))
 previsores[:, 7] = LabelEncoder().fit_transform(previsores[:, 7].astype('str'))
+
 
 # Pacote para uso de algoritmos para tratatar valores faltantes em um dataset
 from fancyimpute import KNN    
 # Usa 5NN que tenham um recurso para preencher os valores ausentes de cada linha
-previsores = KNN(k = 5).fit_transform(previsores)
+previsores = KNN(k = 3, orientation="rows", normalizer=None).fit_transform(previsores)
 
 
 # Transforma Objeto em DATAFRAME para verificar pre-processamento
 result = pd.DataFrame(previsores)
-
+guarda = result
 # Cria atributo a ser previsto
 classe = result.iloc[:,5].values
 # Exclui o mesmo da base de dados previsora
@@ -111,7 +112,7 @@ previsores = result.iloc[:,:].values
 
 # Determina o tipo int para todas bases usadas
 previsores = previsores.astype('int')
-classe = LabelEncoder().fit_transform(classe)
+classe = classe.astype('int')
 
 '''
 #################################################################################################
@@ -182,7 +183,7 @@ f1TREE = f1_score(classe_teste, previsoesTREE, average='micro')
 # Cria uma matriz para comparação de dados dos dois atributos
 matrizTREE = confusion_matrix(classe_teste, previsoesTREE)
 
-'''
+
 # Avaliação da precisão do modelo de predição por meio de curva ROC
 # Ajusta dados para criar medidas de curva
 cls_testeTREE = pd.DataFrame(classe_teste).astype('float')
@@ -193,7 +194,7 @@ fprTREE, tprTREE,_ = metrics.roc_curve(cls_testeTREE, predsTREE)
 aucTREE = metrics.roc_auc_score(cls_testeTREE, predsTREE)
 
 # Uso de biblioteca para Plotagem de Gráfico
-plt.plot(fprTREE, tprTREE, '', label="Accelerated Healing, auc= %0.2f"% aucTREE)
+plt.plot(fprTREE, tprTREE, '', label="Publisher, auc= %0.2f"% aucTREE)
 plt.title('Receiver Operating Characteristic')
 plt.xlabel('False Positive')
 plt.ylabel('True Positive')
@@ -201,7 +202,7 @@ plt.legend(loc=4)
 plt.show()
 
 
-
+'''
 ######################################## NAIVE BAYES ########################################
 '''
 
@@ -237,7 +238,6 @@ scores_cvNB = cross_validate(classificadorNB,
                            scoring=scoring, 
                            cv=3)
 
-'''
 # Avaliação da precisão do modelo de predição por meio de curva ROC
 # Ajusta dados para criar medidas de curva
 cls_testeNB = pd.DataFrame(classe_teste).astype('float')
@@ -248,7 +248,7 @@ fprNB, tprNB,_ = metrics.roc_curve(cls_testeNB, predsNB)
 aucNB = metrics.roc_auc_score(cls_testeNB, predsNB)
 
 # Uso de biblioteca para Plotagem de Gráfico
-plt.plot(fprNB, tprNB, '', label="Accelerated Healing, auc= %0.2f"% aucNB)
+plt.plot(fprNB, tprNB, '', label="Publisher, auc= %0.2f"% aucNB)
 plt.title('Receiver Operating Characteristic')
 plt.xlabel('False Positive')
 plt.ylabel('True Positive')
@@ -256,7 +256,7 @@ plt.legend(loc=4)
 plt.show()
 
 
-
+'''
 ######################################## RANDOM FOREST ########################################
 '''
 
@@ -296,7 +296,7 @@ scores_cvRF = cross_validate(classificadorRF,
                            scoring=scoring, 
                            cv=3)
 
-'''
+
 # Avaliação da precisão do modelo de predição por meio de curva ROC
 # Ajusta dados para criar medidas de curva
 cls_testeRF = pd.DataFrame(classe_teste).astype('float')
@@ -307,14 +307,14 @@ fprRF, tprRF,_ = metrics.roc_curve(cls_testeRF, predsRF)
 aucRF = metrics.roc_auc_score(cls_testeRF, predsRF)
 
 # Uso de biblioteca para Plotagem de Gráfico
-plt.plot(fprRF, tprRF, '', label="Accelerated Healing, auc= %0.2f"% aucRF)
+plt.plot(fprRF, tprRF, '', label="Publisher, auc= %0.2f"% aucRF)
 plt.title('Receiver Operating Characteristic')
 plt.xlabel('False Positive')
 plt.ylabel('True Positive')
 plt.legend(loc=4)
 plt.show()
 
-
+'''
 ####################################### VOTING_CLASSIFIER  ########################################
 '''
 from sklearn.ensemble import VotingClassifier

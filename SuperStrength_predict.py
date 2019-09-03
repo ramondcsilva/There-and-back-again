@@ -111,7 +111,7 @@ previsores = result.iloc[:,:].values
 
 # Determina o tipo int para todas bases usadas
 previsores = previsores.astype('int')
-classe = LabelEncoder().fit_transform(classe)
+classe = classe.astype('int')
 
 '''
 #################################################################################################
@@ -188,7 +188,7 @@ matrizTREE = confusion_matrix(classe_teste, previsoesTREE)
 cls_testeTREE = pd.DataFrame(classe_teste).astype('float')
 predsTREE = classificadorTREE.predict_proba(previsores_teste)[::,1]
 # Cria atributos Falso positivo e Verdadeiro positivo
-fprTREE, tprTREE, = metrics.roc_curve(cls_testeTREE, predsTREE)
+fprTREE, tprTREE,_ = metrics.roc_curve(cls_testeTREE, predsTREE)
 # Calcula area embaixo da curva roc
 aucTREE = metrics.roc_auc_score(cls_testeTREE, predsTREE)
 

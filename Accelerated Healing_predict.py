@@ -111,7 +111,7 @@ previsores = result.iloc[:,:].values
 
 # Determina o tipo int para todas bases usadas
 previsores = previsores.astype('int')
-classe = LabelEncoder().fit_transform(classe)
+classe = classe.astype('int')
 
 '''
 #################################################################################################
