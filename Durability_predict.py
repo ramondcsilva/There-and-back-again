@@ -151,6 +151,7 @@ classe = classe.astype('int')
 #################################################################################################
 '''
 
+
 from sklearn.model_selection import train_test_split #Função do pacote sklearn que divide automaticamente dados teste e dados de treinamento
 from sklearn.model_selection import cross_val_score #importação do algoritmo de validação cruzada
 from sklearn.model_selection import cross_validate #Retorna a taxa de previsao, tempo de execução e recall
@@ -158,11 +159,9 @@ from sklearn.metrics import accuracy_score, confusion_matrix #Avalização por m
 from sklearn import metrics
 import matplotlib.pyplot as plt
 
-
 # Criando variaveis para treinamento e teste, usando o metodo de divisao dos dados
 # Usou-se 30%(test_size = 0.30) como quantidade de atributos para teste e o restante para treinamento
 previsores_treinamento, previsores_teste, classe_treinamento, classe_teste = train_test_split(previsores, classe, test_size=0.30, random_state=0)
-
 
 '''
 ######################################## ÁRVORE DE DECISÃO ########################################
@@ -201,7 +200,6 @@ print("TREE Cross Validation Mean: {}".format(resultado_cvTREE.mean()))
 #desvio padrão dos resultados da avaliação cruzada
 print("TREE Cross-Validation Standard Deviation: {}".format(resultado_cvTREE.std()))
 
-
 # Usando o Cross_validate para avaliar o classificadorTREE
 scoring = ['precision_macro', 'recall_macro']
 scores_cvTREE = cross_validate(classificadorTREE, 
@@ -216,6 +214,7 @@ accuracyTREE = accuracy_score(classe_teste, previsoesTREE)
 # Cria uma matriz para comparação de dados dos dois atributos
 matrizTREE = confusion_matrix(classe_teste, previsoesTREE)
 
+
 # Avaliação da precisão do modelo de predição por meio de curva ROC
 # Ajusta dados para criar medidas de curva
 cls_testeTREE = pd.DataFrame(classe_teste).astype('float')
@@ -224,8 +223,9 @@ predsTREE = classificadorTREE.predict_proba(previsores_teste)[::,1]
 fprTREE, tprTREE,_ = metrics.roc_curve(cls_testeTREE, predsTREE)
 # Calcula area embaixo da curva roc
 aucTREE = metrics.roc_auc_score(cls_testeTREE, predsTREE)
+
 # Uso de biblioteca para Plotagem de Gráfico
-plt.plot(fprTREE, tprTREE, '', label="Durability, AUC= %0.2f"% aucTREE)
+plt.plot(fprTREE, tprTREE, '', label="Accelerated Healing, auc= %0.2f"% aucTREE)
 plt.title('Receiver Operating Characteristic')
 plt.xlabel('False Positive')
 plt.ylabel('True Positive')
@@ -246,20 +246,19 @@ previsoesNB = classificadorNB.predict(previsores_teste)	# Testamos os dados para
 print("Best test score is {}".format(classificadorNB.score(previsores_teste,classe_teste)))
 #Retorna a precisão média nos dados e rótulos de treinamento fornecidos.
 print("Best training score is {}".format(classificadorNB.score(previsores_treinamento,classe_treinamento)))
-
+ 
 
 # Compara dados de dois atributos retornando o percentual de acerto
 accuracyNB = accuracy_score(classe_teste, previsoesNB)
 # Cria uma matriz para comparação de dados dos dois atributos 
 matrizNB = confusion_matrix(classe_teste, previsoesNB)
 
-
 #resultado da avaliação cruzada feita com 3 testes. k=3
-resultados = cross_val_score(classificadorNB, previsores, classe, cv = 3)
+resultado_cvNB = cross_val_score(classificadorNB, previsores, classe, cv = 3)
 #média dos resultados da avaliação cruzada
-print("Cross Validation Mean: {}".format(resultados.mean()))
+print("Naive Bayes Cross Validation Mean: {}".format(resultado_cvNB.mean()))
 #desvio padrão dos resultados da avaliação cruzada
-print("Cross-Validation Standard Deviation: {}".format(resultados.std()))
+print("Naive Bayes Cross-Validation Standard Deviation: {}".format(resultado_cvNB.std()))
 
 
 # Usando o Cross_validate para avaliar o classificadorNB
@@ -281,12 +280,13 @@ fprNB, tprNB,_ = metrics.roc_curve(cls_testeNB, predsNB)
 aucNB = metrics.roc_auc_score(cls_testeNB, predsNB)
 
 # Uso de biblioteca para Plotagem de Gráfico
-plt.plot(fprNB, tprNB, '', label="Durability, auc= %0.2f"% aucNB)
+plt.plot(fprNB, tprNB, '', label="Accelerated Healing, auc= %0.2f"% aucNB)
 plt.title('Receiver Operating Characteristic')
 plt.xlabel('False Positive')
 plt.ylabel('True Positive')
 plt.legend(loc=4)
 plt.show()
+
 
 '''
 ######################################## RANDOM FOREST ########################################
@@ -295,15 +295,59 @@ plt.show()
 # RandomForestClassifier é a classe que gera a floresta
 from sklearn.ensemble import RandomForestClassifier
 # instancia a classe RandomForestClassifier
-classificadorRF = RandomForestClassifier(n_estimators=1000, criterion='entropy', random_state=0)
+classificadorRF = RandomForestClassifier(n_estimators=50, criterion='entropy', random_state=0)
 classificadorRF.fit(previsores_treinamento, classe_treinamento) # constrói a floresta
 
 # Testamos os dados para achar sua taxa de acerto
 previsoesRF = classificadorRF.predict(previsores_teste)
 
+#Retorna a precisão média nos dados e rótulos de teste fornecidos.
+print("Best test score is {}".format(classificadorRF.score(previsores_teste,classe_teste)))
+#Retorna a precisão média nos dados e rótulos de treinamento fornecidos.
+print("Best training score is {}".format(classificadorRF.score(previsores_treinamento,classe_treinamento)))
+ 
+
+# Compara dados de dois atributos retornando o percentual de acerto
+accuracyRF = accuracy_score(classe_teste, previsoesRF)
+# Cria uma matriz para comparação de dados dos dois atributos 
+matrizRF = confusion_matrix(classe_teste, previsoesRF)
+
+#resultado da avaliação cruzada feita com 3 testes. k=3
+resultado_cvRF = cross_val_score(classificadorRF, previsores, classe, cv = 3)
+#média dos resultados da avaliação cruzada
+print("Naive Bayes Cross Validation Mean: {}".format(resultado_cvRF.mean()))
+#desvio padrão dos resultados da avaliação cruzada
+print("Naive Bayes Cross-Validation Standard Deviation: {}".format(resultado_cvRF.std()))
+
+
+# Usando o Cross_validate para avaliar o classificadorRF
+scoring = ['precision_macro', 'recall_macro']
+scores_cvNB = cross_validate(classificadorRF, 
+                           previsores, 
+                           classe,
+                           scoring=scoring, 
+                           cv=3)
+
+
+# Avaliação da precisão do modelo de predição por meio de curva ROC
+# Ajusta dados para criar medidas de curva
+cls_testeRF = pd.DataFrame(classe_teste).astype('float')
+predsRF = classificadorRF.predict_proba(previsores_teste)[::,1]
+# Cria atributos Falso positivo e Verdadeiro positivo
+fprRF, tprRF,_ = metrics.roc_curve(cls_testeRF, predsRF)
+# Calcula area embaixo da curva roc
+aucRF = metrics.roc_auc_score(cls_testeRF, predsRF)
+
+# Uso de biblioteca para Plotagem de Gráfico
+plt.plot(fprRF, tprRF, '', label="Accelerated Healing, auc= %0.2f"% aucRF)
+plt.title('Receiver Operating Characteristic')
+plt.xlabel('False Positive')
+plt.ylabel('True Positive')
+plt.legend(loc=4)
+plt.show()
 
 '''
-####################################### Voting Classifier  ########################################
+####################################### VOTING_CLASSIFIER  ########################################
 '''
 from sklearn.ensemble import VotingClassifier
 
@@ -317,8 +361,6 @@ for clf, label in zip([classificadorTREE, classificadorRF, classificadorNB, voti
 
     scores = cross_val_score(clf, previsores, classe, cv=5, scoring='accuracy')
     print("Accuracy: %0.2f [%s]" % (scores.mean(), label))
-    
-    
 
 '''
 #################################################################################################

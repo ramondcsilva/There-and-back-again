@@ -23,8 +23,8 @@ resultado da acurácia da árvore de decisão e naive bayes.
 '''
 base_herois.loc[base_herois.Weight < 0, 'Weight'] = 0 
 base_herois.loc[base_herois.Weight == 0, 'Weight'] = int(base_herois['Weight'].mean())
-base_herois.loc[base_herois.Weight < 75, 'Weight'] = 0
-base_herois.loc[base_herois.Weight >= 75, 'Weight'] = 1
+base_herois.loc[base_herois.Weight == 75, 'Weight'] = 1
+base_herois.loc[base_herois.Weight > 75, 'Weight'] = 2
 
 
 # Agrupamento de classes do Atributo Publisher
@@ -40,7 +40,6 @@ base_herois.loc[base_herois.Height > 170, 'Height'] = 1
 
 # Mescla base de dados 
 result = base_herois.merge(base_herois_superpower, left_on ='name', right_on='hero_names', how='outer')
-
 
 # Exclusao do atributo do nome e de herois que estavam duplicados
 result.drop("hero_names",1,inplace=True)
@@ -69,61 +68,39 @@ previsores = result.iloc[0:734,2:178].values
 
 # Tratando valores 'nan' da base de dados
 from sklearn.impute import SimpleImputer
-# Imputer recebe a classe que trata dados nulos
+# Imputer recebe a classe que tratar dados nulos
 
-# Preenchendo valores nulos com os mais frequentes
-imputer = SimpleImputer(missing_values=np.nan, strategy='most_frequent')
-imputer = imputer.fit(previsores[:,:]) 
+# Preenche os valores nulos com traços
+imputer = SimpleImputer(missing_values=np.nan, strategy='constant', fill_value= '-')
+imputer = imputer.fit(previsores[:,:])
 # Atribui as modificação de valores nulos, a mesma variavel
 previsores[:,:] = imputer.fit_transform(previsores[:,:])
 
-# Atribui os valores vagos de GENDER como a classe NO-GENDER
-imputer = SimpleImputer(missing_values = '-', strategy='constant', fill_value='no-gender')
-imputer = imputer.fit(previsores[:,0].reshape(1,-1)) 
-previsores[:,0] = imputer.fit_transform(previsores[:,0].reshape(1,-1))
-
-# Atribui os valores vagos de RACE como a classe NO-RACE
-imputer = SimpleImputer(missing_values = '-', strategy='constant', fill_value='no-race')
-imputer = imputer.fit(previsores[:,2].reshape(1,-1)) 
-previsores[:,2] = imputer.fit_transform(previsores[:,2].reshape(1,-1))
-
-# Atribui os valores vagos de EYE COLOR como a classe NO-COLOR
-# Atribui os valores vagos de HAIR COLOR como a classe NO-COLOR
-# Atribui os valores vagos de SKIN COLOR como a classe NO-COLOR
-imputer = SimpleImputer(missing_values = '-', strategy='constant', fill_value='no-color')
-# EYE COLOR
-imputer = imputer.fit(previsores[:,1].reshape(1,-1)) 
-previsores[:,1] = imputer.fit_transform(previsores[:,1].reshape(1,-1))
-# HAIR COLOR
-imputer = imputer.fit(previsores[:,3].reshape(1,-1)) 
-previsores[:,3] = imputer.fit_transform(previsores[:,3].reshape(1,-1))
-# SKIN COLOR
-imputer = imputer.fit(previsores[:,6].reshape(1,-1)) 
-previsores[:,6] = imputer.fit_transform(previsores[:,6].reshape(1,-1))
-
-# Atribui os valores BAD de ALIGNMENT como a classe NO-GOOD
-imputer = SimpleImputer(missing_values = 'bad', strategy='constant', fill_value='no-good')
-imputer = imputer.fit(previsores[:,7].reshape(1,-1)) 
-previsores[:,7] = imputer.fit_transform(previsores[:,7].reshape(1,-1))
-
-# Atribui os valores NEUTRAL de ALIGNMENT como a classe NO-GOOD
-imputer = SimpleImputer(missing_values = 'neutral', strategy='constant', fill_value='no-good')
-imputer = imputer.fit(previsores[:,7].reshape(1,-1)) 
-previsores[:,7] = imputer.fit_transform(previsores[:,7].reshape(1,-1))
-
-# Atribui os valores vagos de ALIGNMENT como a classe NO-GOOD
-imputer = SimpleImputer(missing_values = '-', strategy='constant', fill_value='no-good')
-imputer = imputer.fit(previsores[:,7].reshape(1,-1)) 
-previsores[:,7] = imputer.fit_transform(previsores[:,7].reshape(1,-1))
-
-# Atribui os valores vagos com o mais frequentes aos dados restantes
-imputer = SimpleImputer(missing_values='-', strategy='most_frequent')
-imputer = imputer.fit(previsores[:,:]) 
+# Preenche os traços com valores nulos para uso do algoritmo KNN
+# Para predição de atributos fatlantes
+imputer = SimpleImputer(missing_values='-', strategy='constant', fill_value= 'NaN')
+imputer = imputer.fit(previsores[:,:])
+# Atribui as modificação de valores nulos, a mesma variavel
 previsores[:,:] = imputer.fit_transform(previsores[:,:])
+
+# Transforma os dados categoricos/nominais em numericos 
+from sklearn.preprocessing import LabelEncoder
+previsores[:, 0] = LabelEncoder().fit_transform(previsores[:, 0].astype('str'))
+previsores[:, 1] = LabelEncoder().fit_transform(previsores[:, 1].astype('str'))
+previsores[:, 2] = LabelEncoder().fit_transform(previsores[:, 2].astype('str'))
+previsores[:, 3] = LabelEncoder().fit_transform(previsores[:, 3].astype('str'))
+previsores[:, 5] = LabelEncoder().fit_transform(previsores[:, 5].astype('str'))
+previsores[:, 6] = LabelEncoder().fit_transform(previsores[:, 6].astype('str'))
+previsores[:, 7] = LabelEncoder().fit_transform(previsores[:, 7].astype('str'))
+
+# Pacote para uso de algoritmos para tratatar valores faltantes em um dataset
+from fancyimpute import KNN    
+# Usa 5NN que tenham um recurso para preencher os valores ausentes de cada linha
+previsores = KNN(k = 5).fit_transform(previsores)
+
 
 # Transforma Objeto em DATAFRAME para verificar pre-processamento
 result = pd.DataFrame(previsores)
-guarda = result
 
 # Cria atributo a ser previsto
 classe = result.iloc[:,10].values
@@ -131,16 +108,6 @@ classe = result.iloc[:,10].values
 result = result.drop(columns = 10)
 # Retorna a modificação
 previsores = result.iloc[:,:].values
-
-# Transforma os dados categoricos/nominais em numericos 
-from sklearn.preprocessing import LabelEncoder
-previsores[:, 0] = LabelEncoder().fit_transform(previsores[:, 0])
-previsores[:, 1] = LabelEncoder().fit_transform(previsores[:, 1])
-previsores[:, 2] = LabelEncoder().fit_transform(previsores[:, 2])
-previsores[:, 3] = LabelEncoder().fit_transform(previsores[:, 3])
-previsores[:, 5] = LabelEncoder().fit_transform(previsores[:, 5])
-previsores[:, 6] = LabelEncoder().fit_transform(previsores[:, 6])
-previsores[:, 7] = LabelEncoder().fit_transform(previsores[:, 7])
 
 # Determina o tipo int para todas bases usadas
 previsores = previsores.astype('int')
@@ -153,10 +120,10 @@ classe = classe.astype('int')
 '''
 
 
-from sklearn.model_selection import train_test_split #Função do pacote sklearn que divide automaticamente dados teste e dados de treinamento
-from sklearn.model_selection import cross_val_score #importação do algoritmo de validação cruzada
-from sklearn.model_selection import cross_validate #Retorna a taxa de previsao, tempo de execução e recall
-from sklearn.metrics import accuracy_score, confusion_matrix #Avalização por meio de Matriz de Confução e Pontução de Acerto
+from sklearn.model_selection import train_test_split    #Função do pacote sklearn que divide automaticamente dados teste e dados de treinamento
+from sklearn.model_selection import cross_val_score     #importação do algoritmo de validação cruzada
+from sklearn.model_selection import cross_validate      #Retorna a taxa de previsao, tempo de execução e recall
+from sklearn.metrics import confusion_matrix, .  #Avalização por meio de Matriz de Confução
 from sklearn import metrics
 import matplotlib.pyplot as plt
 
@@ -210,11 +177,8 @@ scores_cvTREE = cross_validate(classificadorTREE,
                            cv=3)
 
 
-# Compara dados de dois atributos retornando o percentual de acerto
-accuracyTREE = accuracy_score(classe_teste, previsoesTREE) 
 # Cria uma matriz para comparação de dados dos dois atributos
 matrizTREE = confusion_matrix(classe_teste, previsoesTREE)
-
 
 # Avaliação da precisão do modelo de predição por meio de curva ROC
 # Ajusta dados para criar medidas de curva
@@ -248,9 +212,6 @@ print("Best test score is {}".format(classificadorNB.score(previsores_teste,clas
 #Retorna a precisão média nos dados e rótulos de treinamento fornecidos.
 print("Best training score is {}".format(classificadorNB.score(previsores_treinamento,classe_treinamento)))
  
-
-# Compara dados de dois atributos retornando o percentual de acerto
-accuracyNB = accuracy_score(classe_teste, previsoesNB)
 # Cria uma matriz para comparação de dados dos dois atributos 
 matrizNB = confusion_matrix(classe_teste, previsoesNB)
 
@@ -296,12 +257,54 @@ plt.show()
 # RandomForestClassifier é a classe que gera a floresta
 from sklearn.ensemble import RandomForestClassifier
 # instancia a classe RandomForestClassifier
-classificadorRF = RandomForestClassifier(n_estimators=1000, criterion='entropy', random_state=0)
+classificadorRF = RandomForestClassifier(n_estimators=50, criterion='entropy', random_state=0)
 classificadorRF.fit(previsores_treinamento, classe_treinamento) # constrói a floresta
 
 # Testamos os dados para achar sua taxa de acerto
 previsoesRF = classificadorRF.predict(previsores_teste)
 
+#Retorna a precisão média nos dados e rótulos de teste fornecidos.
+print("Best test score is {}".format(classificadorRF.score(previsores_teste,classe_teste)))
+#Retorna a precisão média nos dados e rótulos de treinamento fornecidos.
+print("Best training score is {}".format(classificadorRF.score(previsores_treinamento,classe_treinamento)))
+ 
+
+# Cria uma matriz para comparação de dados dos dois atributos 
+matrizRF = confusion_matrix(classe_teste, previsoesRF)
+
+#resultado da avaliação cruzada feita com 3 testes. k=3
+resultado_cvRF = cross_val_score(classificadorRF, previsores, classe, cv = 3)
+#média dos resultados da avaliação cruzada
+print("Naive Bayes Cross Validation Mean: {}".format(resultado_cvRF.mean()))
+#desvio padrão dos resultados da avaliação cruzada
+print("Naive Bayes Cross-Validation Standard Deviation: {}".format(resultado_cvRF.std()))
+
+
+# Usando o Cross_validate para avaliar o classificadorRF
+scoring = ['precision_macro', 'recall_macro']
+scores_cvRF = cross_validate(classificadorRF, 
+                           previsores, 
+                           classe,
+                           scoring=scoring, 
+                           cv=3)
+
+
+# Avaliação da precisão do modelo de predição por meio de curva ROC
+# Ajusta dados para criar medidas de curva
+cls_testeRF = pd.DataFrame(classe_teste).astype('float')
+predsRF = classificadorRF.predict_proba(previsores_teste)[::,1]
+# Cria atributos Falso positivo e Verdadeiro positivo
+fprRF, tprRF,_ = metrics.roc_curve(cls_testeRF, predsRF)
+# Calcula area embaixo da curva roc
+aucRF = metrics.roc_auc_score(cls_testeRF, predsRF)
+
+# Uso de biblioteca para Plotagem de Gráfico
+plt.plot(fprRF, tprRF, '', label="Accelerated Healing, auc= %0.2f"% aucRF)
+plt.title('Receiver Operating Characteristic')
+plt.xlabel('False Positive')
+plt.ylabel('True Positive')
+plt.legend(loc=4)
+plt.show()
 
 '''
 ####################################### VOTING_CLASSIFIER  ########################################
@@ -318,7 +321,6 @@ for clf, label in zip([classificadorTREE, classificadorRF, classificadorNB, voti
 
     scores = cross_val_score(clf, previsores, classe, cv=5, scoring='accuracy')
     print("Accuracy: %0.2f [%s]" % (scores.mean(), label))
-    
 
 '''
 #################################################################################################
@@ -343,3 +345,21 @@ print("Bagging " + str(classificadorBagging.score(previsores_teste, classe_teste
 classificadorAdaBoost = AdaBoostClassifier(votingClf, n_estimators = 5, learning_rate = 1)
 classificadorAdaBoost.fit(previsores_treinamento, classe_treinamento)
 print("Ada-Boost " + str(classificadorAdaBoost.score(previsores_teste, classe_teste)))
+
+
+'''
+xt = previsores[:10]
+
+plt.figure()
+plt.plot(classificadorTREE.predict(xt), 'gd', label='DecisionTree')
+plt.plot(classificadorRF.predict(xt), 'b^', label='RandomForestRegressor')
+plt.plot(classificadorNB.predict(xt), 'ys', label='NaiveBayers')
+plt.plot(classificadorAdaBoost.predict(xt), 'r*', label='Voting')
+plt.tick_params(axis='x', which='both', bottom=False, top=False,
+                labelbottom=False)
+plt.ylabel('predicted')
+plt.xlabel('training samples')
+plt.legend(loc="best")
+plt.title('Comparison of individual predictions with averaged')
+plt.show()
+'''
