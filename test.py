@@ -2,7 +2,7 @@
 """
 Created on Mon Aug 26 20:39:42 2019
 
-@author: Adlla Katarine, Daniel Alves, Ramon Silva
+@author: Adlla Katarine, Daniel Alves, Ramon Silva with python 3.6
 """
 
 import pandas as pd
@@ -111,7 +111,7 @@ previsores = result.iloc[:,:].values
 
 # Determina o tipo int para todas bases usadas
 previsores = previsores.astype('int')
-classe = classe.astype('int')
+classe = LabelEncoder().fit_transform(classe)
 
 '''
 #################################################################################################
@@ -182,7 +182,7 @@ f1TREE = f1_score(classe_teste, previsoesTREE, average='micro')
 # Cria uma matriz para comparação de dados dos dois atributos
 matrizTREE = confusion_matrix(classe_teste, previsoesTREE)
 
-
+'''
 # Avaliação da precisão do modelo de predição por meio de curva ROC
 # Ajusta dados para criar medidas de curva
 cls_testeTREE = pd.DataFrame(classe_teste).astype('float')
@@ -201,7 +201,7 @@ plt.legend(loc=4)
 plt.show()
 
 
-'''
+
 ######################################## NAIVE BAYES ########################################
 '''
 
@@ -237,7 +237,7 @@ scores_cvNB = cross_validate(classificadorNB,
                            scoring=scoring, 
                            cv=3)
 
-
+'''
 # Avaliação da precisão do modelo de predição por meio de curva ROC
 # Ajusta dados para criar medidas de curva
 cls_testeNB = pd.DataFrame(classe_teste).astype('float')
@@ -256,7 +256,7 @@ plt.legend(loc=4)
 plt.show()
 
 
-'''
+
 ######################################## RANDOM FOREST ########################################
 '''
 
@@ -296,7 +296,7 @@ scores_cvRF = cross_validate(classificadorRF,
                            scoring=scoring, 
                            cv=3)
 
-
+'''
 # Avaliação da precisão do modelo de predição por meio de curva ROC
 # Ajusta dados para criar medidas de curva
 cls_testeRF = pd.DataFrame(classe_teste).astype('float')
@@ -314,7 +314,7 @@ plt.ylabel('True Positive')
 plt.legend(loc=4)
 plt.show()
 
-'''
+
 ####################################### VOTING_CLASSIFIER  ########################################
 '''
 from sklearn.ensemble import VotingClassifier

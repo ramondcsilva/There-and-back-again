@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 """
-Created on Mon Aug 26 20:39:42 2019
+Created on Mon Aug 26 20:39:58 2019
 
-@author: Adlla Katarine, Daniel Alves, Ramon Silva with python 3.6
+@author: Adlla Katarine, Daniel Alves, Ramon Silva
 """
-
 import pandas as pd
 import numpy as np 
 # Leitura de arquivo para criação da base_herois de dados
@@ -23,9 +22,8 @@ resultado da acurácia da árvore de decisão e naive bayes.
 '''
 base_herois.loc[base_herois.Weight < 0, 'Weight'] = 0 
 base_herois.loc[base_herois.Weight == 0, 'Weight'] = int(base_herois['Weight'].mean())
-base_herois.loc[base_herois.Weight == 75, 'Weight'] = 1
-base_herois.loc[base_herois.Weight > 75, 'Weight'] = 2
-
+base_herois.loc[base_herois.Weight < 75, 'Weight'] = 0
+base_herois.loc[base_herois.Weight >= 75, 'Weight'] = 1
 
 # Agrupamento de classes do Atributo Publisher
 # Dividido entre Marvel Comics e Outhers
@@ -40,6 +38,7 @@ base_herois.loc[base_herois.Height > 170, 'Height'] = 1
 
 # Mescla base de dados 
 result = base_herois.merge(base_herois_superpower, left_on ='name', right_on='hero_names', how='outer')
+
 
 # Exclusao do atributo do nome e de herois que estavam duplicados
 result.drop("hero_names",1,inplace=True)
@@ -70,48 +69,82 @@ previsores = result.iloc[0:734,2:178].values
 from sklearn.impute import SimpleImputer
 # Imputer recebe a classe que tratar dados nulos
 
-# Preenche os valores nulos com traços
-imputer = SimpleImputer(missing_values=np.nan, strategy='constant', fill_value= '-')
-imputer = imputer.fit(previsores[:,:])
+# Preenchendo valores nulos com os mais frequentes
+imputer = SimpleImputer(missing_values=np.nan, strategy='most_frequent')
+imputer = imputer.fit(previsores[:,:]) 
 # Atribui as modificação de valores nulos, a mesma variavel
 previsores[:,:] = imputer.fit_transform(previsores[:,:])
 
-# Preenche os traços com valores nulos para uso do algoritmo KNN
-# Para predição de atributos fatlantes
-imputer = SimpleImputer(missing_values='-', strategy='constant', fill_value= 'NaN')
-imputer = imputer.fit(previsores[:,:])
-# Atribui as modificação de valores nulos, a mesma variavel
+# Atribui os valores vagos de GENDER como a classe NO-GENDER
+imputer = SimpleImputer(missing_values = '-', strategy='constant', fill_value='no-gender')
+imputer = imputer.fit(previsores[:,0].reshape(1,-1)) 
+previsores[:,0] = imputer.fit_transform(previsores[:,0].reshape(1,-1))
+
+# Atribui os valores vagos de RACE como a classe NO-RACE
+imputer = SimpleImputer(missing_values = '-', strategy='constant', fill_value='no-race')
+imputer = imputer.fit(previsores[:,2].reshape(1,-1)) 
+previsores[:,2] = imputer.fit_transform(previsores[:,2].reshape(1,-1))
+
+# Atribui os valores vagos de EYE COLOR como a classe NO-COLOR
+# Atribui os valores vagos de HAIR COLOR como a classe NO-COLOR
+# Atribui os valores vagos de SKIN COLOR como a classe NO-COLOR
+imputer = SimpleImputer(missing_values = '-', strategy='constant', fill_value='no-color')
+# EYE COLOR
+imputer = imputer.fit(previsores[:,1].reshape(1,-1)) 
+previsores[:,1] = imputer.fit_transform(previsores[:,1].reshape(1,-1))
+# HAIR COLOR
+imputer = imputer.fit(previsores[:,3].reshape(1,-1)) 
+previsores[:,3] = imputer.fit_transform(previsores[:,3].reshape(1,-1))
+# SKIN COLOR
+imputer = imputer.fit(previsores[:,6].reshape(1,-1)) 
+previsores[:,6] = imputer.fit_transform(previsores[:,6].reshape(1,-1))
+
+# Atribui os valores BAD de ALIGNMENT como a classe NO-GOOD
+imputer = SimpleImputer(missing_values = 'bad', strategy='constant', fill_value='no-good')
+imputer = imputer.fit(previsores[:,7].reshape(1,-1)) 
+previsores[:,7] = imputer.fit_transform(previsores[:,7].reshape(1,-1))
+
+# Atribui os valores NEUTRAL de ALIGNMENT como a classe NO-GOOD
+imputer = SimpleImputer(missing_values = 'neutral', strategy='constant', fill_value='no-good')
+imputer = imputer.fit(previsores[:,7].reshape(1,-1)) 
+previsores[:,7] = imputer.fit_transform(previsores[:,7].reshape(1,-1))
+
+# Atribui os valores vagos de ALIGNMENT como a classe NO-GOOD
+imputer = SimpleImputer(missing_values = '-', strategy='constant', fill_value='no-good')
+imputer = imputer.fit(previsores[:,7].reshape(1,-1)) 
+previsores[:,7] = imputer.fit_transform(previsores[:,7].reshape(1,-1))
+
+# Atribui os valores vagos com o mais frequentes aos dados restantes
+imputer = SimpleImputer(missing_values='-', strategy='most_frequent')
+imputer = imputer.fit(previsores[:,:]) 
 previsores[:,:] = imputer.fit_transform(previsores[:,:])
-
-# Transforma os dados categoricos/nominais em numericos 
-from sklearn.preprocessing import LabelEncoder
-previsores[:, 0] = LabelEncoder().fit_transform(previsores[:, 0].astype('str'))
-previsores[:, 1] = LabelEncoder().fit_transform(previsores[:, 1].astype('str'))
-previsores[:, 2] = LabelEncoder().fit_transform(previsores[:, 2].astype('str'))
-previsores[:, 3] = LabelEncoder().fit_transform(previsores[:, 3].astype('str'))
-previsores[:, 5] = LabelEncoder().fit_transform(previsores[:, 5].astype('str'))
-previsores[:, 6] = LabelEncoder().fit_transform(previsores[:, 6].astype('str'))
-previsores[:, 7] = LabelEncoder().fit_transform(previsores[:, 7].astype('str'))
-
-# Pacote para uso de algoritmos para tratatar valores faltantes em um dataset
-from fancyimpute import KNN    
-# Usa 5NN que tenham um recurso para preencher os valores ausentes de cada linha
-previsores = KNN(k = 5).fit_transform(previsores)
-
 
 # Transforma Objeto em DATAFRAME para verificar pre-processamento
 result = pd.DataFrame(previsores)
+guarda = result
 
 # Cria atributo a ser previsto
-classe = result.iloc[:,10].values
+
+classe = result.iloc[:,7].values
 # Exclui o mesmo da base de dados previsora
-result = result.drop(columns = 10)
+result = result.drop(columns=7)
 # Retorna a modificação
 previsores = result.iloc[:,:].values
+
+# Transforma os dados categoricos/nominais em numericos 
+from sklearn.preprocessing import LabelEncoder
+previsores[:, 0] = LabelEncoder().fit_transform(previsores[:, 0])
+previsores[:, 1] = LabelEncoder().fit_transform(previsores[:, 1])
+previsores[:, 2] = LabelEncoder().fit_transform(previsores[:, 2])
+previsores[:, 3] = LabelEncoder().fit_transform(previsores[:, 3])
+previsores[:, 5] = LabelEncoder().fit_transform(previsores[:, 5])
+previsores[:, 6] = LabelEncoder().fit_transform(previsores[:, 6])
+previsores[:, 7] = LabelEncoder().fit_transform(previsores[:, 7])
 
 # Determina o tipo int para todas bases usadas
 previsores = previsores.astype('int')
 classe = LabelEncoder().fit_transform(classe)
+
 
 '''
 #################################################################################################
@@ -182,7 +215,7 @@ f1TREE = f1_score(classe_teste, previsoesTREE, average='micro')
 # Cria uma matriz para comparação de dados dos dois atributos
 matrizTREE = confusion_matrix(classe_teste, previsoesTREE)
 
-'''
+
 # Avaliação da precisão do modelo de predição por meio de curva ROC
 # Ajusta dados para criar medidas de curva
 cls_testeTREE = pd.DataFrame(classe_teste).astype('float')
@@ -201,7 +234,7 @@ plt.legend(loc=4)
 plt.show()
 
 
-
+'''
 ######################################## NAIVE BAYES ########################################
 '''
 
@@ -237,7 +270,7 @@ scores_cvNB = cross_validate(classificadorNB,
                            scoring=scoring, 
                            cv=3)
 
-'''
+
 # Avaliação da precisão do modelo de predição por meio de curva ROC
 # Ajusta dados para criar medidas de curva
 cls_testeNB = pd.DataFrame(classe_teste).astype('float')
@@ -256,7 +289,7 @@ plt.legend(loc=4)
 plt.show()
 
 
-
+'''
 ######################################## RANDOM FOREST ########################################
 '''
 
@@ -283,9 +316,9 @@ matrizRF = confusion_matrix(classe_teste, previsoesRF)
 #resultado da avaliação cruzada feita com 3 testes. k=3
 resultado_cvRF = cross_val_score(classificadorRF, previsores, classe, cv = 3)
 #média dos resultados da avaliação cruzada
-print("Naive Bayes Cross Validation Mean: {}".format(resultado_cvRF.mean()))
+print("Random Forest Cross Validation Mean: {}".format(resultado_cvRF.mean()))
 #desvio padrão dos resultados da avaliação cruzada
-print("Naive Bayes Cross-Validation Standard Deviation: {}".format(resultado_cvRF.std()))
+print("Random Forest Cross-Validation Standard Deviation: {}".format(resultado_cvRF.std()))
 
 
 # Usando o Cross_validate para avaliar o classificadorRF
@@ -296,7 +329,7 @@ scores_cvRF = cross_validate(classificadorRF,
                            scoring=scoring, 
                            cv=3)
 
-'''
+
 # Avaliação da precisão do modelo de predição por meio de curva ROC
 # Ajusta dados para criar medidas de curva
 cls_testeRF = pd.DataFrame(classe_teste).astype('float')
@@ -314,7 +347,7 @@ plt.ylabel('True Positive')
 plt.legend(loc=4)
 plt.show()
 
-
+'''
 ####################################### VOTING_CLASSIFIER  ########################################
 '''
 from sklearn.ensemble import VotingClassifier
