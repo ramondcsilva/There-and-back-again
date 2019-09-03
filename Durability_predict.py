@@ -193,7 +193,7 @@ fprTREE, tprTREE,_ = metrics.roc_curve(cls_testeTREE, predsTREE)
 aucTREE = metrics.roc_auc_score(cls_testeTREE, predsTREE)
 
 # Uso de biblioteca para Plotagem de Gráfico
-plt.plot(fprTREE, tprTREE, '', label="Accelerated Healing, auc= %0.2f"% aucTREE)
+plt.plot(fprTREE, tprTREE, '', label="Durability, auc= %0.2f"% aucTREE)
 plt.title('Receiver Operating Characteristic')
 plt.xlabel('False Positive')
 plt.ylabel('True Positive')
@@ -248,7 +248,7 @@ fprNB, tprNB,_ = metrics.roc_curve(cls_testeNB, predsNB)
 aucNB = metrics.roc_auc_score(cls_testeNB, predsNB)
 
 # Uso de biblioteca para Plotagem de Gráfico
-plt.plot(fprNB, tprNB, '', label="Accelerated Healing, auc= %0.2f"% aucNB)
+plt.plot(fprNB, tprNB, '', label="Durability, auc= %0.2f"% aucNB)
 plt.title('Receiver Operating Characteristic')
 plt.xlabel('False Positive')
 plt.ylabel('True Positive')
@@ -283,10 +283,9 @@ matrizRF = confusion_matrix(classe_teste, previsoesRF)
 #resultado da avaliação cruzada feita com 3 testes. k=3
 resultado_cvRF = cross_val_score(classificadorRF, previsores, classe, cv = 3)
 #média dos resultados da avaliação cruzada
-print("Naive Bayes Cross Validation Mean: {}".format(resultado_cvRF.mean()))
+print("Random Forest Cross Validation Mean: {}".format(resultado_cvRF.mean()))
 #desvio padrão dos resultados da avaliação cruzada
-print("Naive Bayes Cross-Validation Standard Deviation: {}".format(resultado_cvRF.std()))
-
+print("Random Forest Cross-Validation Standard Deviation: {}".format(resultado_cvRF.std()))
 
 # Usando o Cross_validate para avaliar o classificadorRF
 scoring = ['precision_macro', 'recall_macro']
@@ -295,7 +294,6 @@ scores_cvRF = cross_validate(classificadorRF,
                            classe,
                            scoring=scoring, 
                            cv=3)
-
 
 # Avaliação da precisão do modelo de predição por meio de curva ROC
 # Ajusta dados para criar medidas de curva
@@ -307,7 +305,7 @@ fprRF, tprRF,_ = metrics.roc_curve(cls_testeRF, predsRF)
 aucRF = metrics.roc_auc_score(cls_testeRF, predsRF)
 
 # Uso de biblioteca para Plotagem de Gráfico
-plt.plot(fprRF, tprRF, '', label="Accelerated Healing, auc= %0.2f"% aucRF)
+plt.plot(fprRF, tprRF, '', label="Durability, auc= %0.2f"% aucRF)
 plt.title('Receiver Operating Characteristic')
 plt.xlabel('False Positive')
 plt.ylabel('True Positive')

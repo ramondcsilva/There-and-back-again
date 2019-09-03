@@ -237,7 +237,6 @@ scores_cvNB = cross_validate(classificadorNB,
                            scoring=scoring, 
                            cv=3)
 
-
 # Avaliação da precisão do modelo de predição por meio de curva ROC
 # Ajusta dados para criar medidas de curva
 cls_testeNB = pd.DataFrame(classe_teste).astype('float')
@@ -283,9 +282,9 @@ matrizRF = confusion_matrix(classe_teste, previsoesRF)
 #resultado da avaliação cruzada feita com 3 testes. k=3
 resultado_cvRF = cross_val_score(classificadorRF, previsores, classe, cv = 3)
 #média dos resultados da avaliação cruzada
-print("Naive Bayes Cross Validation Mean: {}".format(resultado_cvRF.mean()))
+print("Random Forest Cross Validation Mean: {}".format(resultado_cvRF.mean()))
 #desvio padrão dos resultados da avaliação cruzada
-print("Naive Bayes Cross-Validation Standard Deviation: {}".format(resultado_cvRF.std()))
+print("Random Forest Cross-Validation Standard Deviation: {}".format(resultado_cvRF.std()))
 
 
 # Usando o Cross_validate para avaliar o classificadorRF
