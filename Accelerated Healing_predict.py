@@ -321,7 +321,7 @@ from sklearn.ensemble import VotingClassifier
 votingClf = VotingClassifier(estimators=[('tr', classificadorTREE), 
                                          ('rf', classificadorRF), 
                                          ('nb', classificadorNB)], 
-                                           voting='soft', weights = [1,2,1])
+                                           voting='soft', weights = [1.1,2,1])
 
 
 for clf, label in zip([classificadorTREE, classificadorRF, classificadorNB, votingClf], ['Decision Tree', 'Random Forest', 'Naive Bayes', 'Ensemble']):
@@ -354,7 +354,7 @@ classificadorAdaBoost.fit(previsores_treinamento, classe_treinamento)
 print("Ada-Boost " + str(classificadorAdaBoost.score(previsores_teste, classe_teste)))
 
 
-'''
+
 xt = previsores[:10]
 
 plt.figure()
@@ -364,9 +364,8 @@ plt.plot(classificadorNB.predict(xt), 'ys', label='NaiveBayers')
 plt.plot(classificadorAdaBoost.predict(xt), 'r*', label='Voting')
 plt.tick_params(axis='x', which='both', bottom=False, top=False,
                 labelbottom=False)
-plt.ylabel('predicted')
-plt.xlabel('training samples')
+plt.ylabel('Predicão')
+plt.xlabel('Amostras treinadas')
 plt.legend(loc="best")
-plt.title('Comparison of individual predictions with averaged')
+plt.title('Comparação entre classificadores individuais sobre a predição')
 plt.show()
-'''

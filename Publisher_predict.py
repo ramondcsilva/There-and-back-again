@@ -322,7 +322,7 @@ from sklearn.ensemble import VotingClassifier
 votingClf = VotingClassifier(estimators=[('tr', classificadorTREE), 
                                          ('rf', classificadorRF), 
                                          ('nb', classificadorNB)], 
-                                           voting='soft', weights = [1,2,1])
+                                           voting='soft', weights = [1.1,2,1])
 
 
 for clf, label in zip([classificadorTREE, classificadorRF, classificadorNB, votingClf], ['Decision Tree', 'Random Forest', 'Naive Bayes', 'Ensemble']):
