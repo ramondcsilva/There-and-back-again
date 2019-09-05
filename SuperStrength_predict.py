@@ -306,7 +306,7 @@ fprRF, tprRF,_ = metrics.roc_curve(cls_testeRF, predsRF)
 aucRF = metrics.roc_auc_score(cls_testeRF, predsRF)
 
 # Uso de biblioteca para Plotagem de Gráfico
-plt.plot(fprRF, tprRF, '', label="SuperStrength, auc= %0.2f"% aucRF)
+plt.plot(fprRF, tprRF, '', label="SuperStrength with Random Forest, auc= %0.2f"% aucRF)
 plt.title('Receiver Operating Characteristic')
 plt.xlabel('False Positive')
 plt.ylabel('True Positive')
