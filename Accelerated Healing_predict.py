@@ -71,14 +71,14 @@ from sklearn.impute import SimpleImputer
 # Imputer recebe a classe que tratar dados nulos
 
 # Preenche os valores nulos com traços
-imputer = SimpleImputer(missing_values=np.nan, strategy='constant', fill_value= '-')
+imputer = SimpleImputer(missing_values=np.nan, strategy='constant', fill_value = '-')
 imputer = imputer.fit(previsores[:,:])
 # Atribui as modificação de valores nulos, a mesma variavel
 previsores[:,:] = imputer.fit_transform(previsores[:,:])
 
 # Preenche os traços com valores nulos para uso do algoritmo KNN
 # Para predição de atributos fatlantes
-imputer = SimpleImputer(missing_values='-', strategy='constant', fill_value= 'NaN')
+imputer = SimpleImputer(missing_values='-', strategy='constant', fill_value = 'NaN')
 imputer = imputer.fit(previsores[:,:])
 # Atribui as modificação de valores nulos, a mesma variavel
 previsores[:,:] = imputer.fit_transform(previsores[:,:])
@@ -104,11 +104,14 @@ result = pd.DataFrame(previsores)
 
 # Cria atributo a ser previsto
 classe = result.iloc[:,10].values
-# Exclui o mesmo da base de dados previsora
+# Exclui o mesmo atrivuto a ser classificado, da base de dados previsora
 result = result.drop(columns = 10)
+
+# Exclui atributo Skin Color por conter muitos valores ausentes
+result = result.drop(columns = 6)
+
 # Retorna a modificação
 previsores = result.iloc[:,:].values
-
 # Determina o tipo int para todas bases usadas
 previsores = previsores.astype('int')
 classe = classe.astype('int')
